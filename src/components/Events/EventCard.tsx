@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom'
 import type { EventItem } from '../../types/event'
 
 type Props = {
@@ -23,8 +24,15 @@ function formatStartsAt(value: string) {
 
 function EventCard({ event }: Props) {
   return (
-    <article className="eventCard">
-      <div className={`eventCard__cover eventCard__cover--${event.coverVariant}`} />
+    <Link to={`/events/${event.id}`} className="eventCard">
+      <div 
+        className={`eventCard__cover eventCard__cover--${event.coverVariant}`}
+        style={event.customCover ? { 
+          backgroundImage: `url(${event.customCover})`, 
+          backgroundSize: 'cover', 
+          backgroundPosition: 'center' 
+        } : {}}
+      />
 
       <div className="eventCard__body">
         <div className="eventCard__title">{event.title}</div>
@@ -34,7 +42,7 @@ function EventCard({ event }: Props) {
           <span className="eventCard__category">{event.category}</span>
         </div>
       </div>
-    </article>
+    </Link>
   )
 }
 

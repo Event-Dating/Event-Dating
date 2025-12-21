@@ -5,7 +5,9 @@ import { EventsProvider } from './context/EventsContext'
 import AppLayout from './layout/AppLayout'
 import ChatsPage from './pages/ChatsPage'
 import CreateEventPage from './pages/CreateEventPage'
+import EventDetailPage from './pages/EventDetailPage'
 import HomePage from './pages/HomePage'
+import MyEventsPage from './pages/MyEventsPage'
 import ProfilePage from './pages/ProfilePage'
 
 function App() {
@@ -19,6 +21,8 @@ function App() {
               <Route path="/profile" element={<ProfilePage />} />
               <Route path="/chats" element={<ChatsPage />} />
               <Route path="/create" element={<CreateEventPage />} />
+              <Route path="/my-events" element={<MyEventsPage />} />
+              <Route path="/events/:id" element={<EventDetailPage />} />
               <Route path="*" element={<Navigate to="/" replace />} />
             </Route>
           </Routes>

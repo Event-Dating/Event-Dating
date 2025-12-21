@@ -5,6 +5,7 @@ import type { EventItem } from '../types/event'
 interface EventsContextType {
   events: EventItem[]
   addEvent: (event: EventItem) => void
+  updateEvent: (id: string, updates: Partial<EventItem>) => void
 }
 
 const EventsContext = createContext<EventsContextType | undefined>(undefined)
@@ -16,8 +17,14 @@ export function EventsProvider({ children }: { children: ReactNode }) {
     setEvents(prev => [...prev, event])
   }
 
+  const updateEvent = (id: string, updates: Partial<EventItem>) => {
+    setEvents(prev => prev.map(event => 
+      event.id === id ? { ...event, ...updates } : event
+    ))
+  }
+
   return (
-    <EventsContext.Provider value={{ events, addEvent }}>
+    <EventsContext.Provider value={{ events, addEvent, updateEvent }}>
       {children}
     </EventsContext.Provider>
   )

@@ -1,4 +1,7 @@
+import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import EmailChangeCard from '../components/Profile/EmailChangeCard'
+import NameChangeCard from '../components/Profile/NameChangeCard'
 import PasswordChangeCard from '../components/Profile/PasswordChangeCard'
 import ProfileInfoCard from '../components/Profile/ProfileInfoCard'
 import { useAuth } from '../context/AuthContext'
@@ -6,6 +9,7 @@ import { useAuth } from '../context/AuthContext'
 function ProfilePage() {
   const { logout, deleteAccount } = useAuth()
   const navigate = useNavigate()
+  const [isEditing, setIsEditing] = useState(false)
 
   const onLogout = async () => {
     await logout()
@@ -17,6 +21,15 @@ function ProfilePage() {
     navigate('/')
   }
 
+  const onProfileUpdated = () => {
+    setIsEditing(false)
+    console.log('Профиль успешно обновлен')
+  }
+
+  const onEditProfile = () => {
+    setIsEditing(!isEditing)
+  }
+
   return (
     <div className="container">
       <div className="pageHeader">
@@ -24,8 +37,19 @@ function ProfilePage() {
       </div>
 
       <div className="profileGrid">
-        <ProfileInfoCard onLogout={onLogout} onDelete={onDelete} />
-        <PasswordChangeCard />
+        <ProfileInfoCard 
+          onLogout={onLogout} 
+          onDelete={onDelete} 
+          onEditProfile={onEditProfile}
+          isEditing={isEditing}
+        />
+        {isEditing && (
+          <>
+            <NameChangeCard onSaved={onProfileUpdated} />
+            <EmailChangeCard onSaved={onProfileUpdated} />
+            <PasswordChangeCard onSaved={onProfileUpdated} />
+          </>
+        )}
       </div>
     </div>
   )

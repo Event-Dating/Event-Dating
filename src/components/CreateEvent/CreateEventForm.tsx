@@ -1,17 +1,21 @@
-import { useEffect, useState, type ChangeEvent } from 'react'
-import type { EventCategory } from '../../types/event'
+import { useEffect, useState, type ChangeEvent } from 'react';
+import type { EventCategory } from '../../types/event';
 
 type Props = {
-  onSave?: (payload: { title: string; startsAt: string; coverFileName: string | null; category: EventCategory }) => void
+  onSave?: (payload: { title: string; startsAt: string; coverFileName: string | null; category: EventCategory; description: string; author: string }) => void
+  author: string
 }
 
 const categories: EventCategory[] = ['Спорт', 'Культура', 'Еда', 'Прогулка', 'Другое']
 
-function CreateEventForm({ onSave }: Props) {
+function CreateEventForm({ onSave, author }: Props) {
   const [title, setTitle] = useState('')
   const [startsAt, setStartsAt] = useState('')
   const [category, setCategory] = useState<EventCategory>('Другое')
   const [coverFileName, setCoverFileName] = useState<string | null>(null)
+  const [description, setDescription] = useState('')
+  const [errors, setErrors] = useState<{ title?: string; date?: string }>({})
+  const [isSelectOpen, setIsSelectOpen] = useState(false)
 
   useEffect(() => {
     const now = new Date()
@@ -36,31 +40,35 @@ function CreateEventForm({ onSave }: Props) {
   }
 
   const save = () => {
+    const newErrors: { title?: string; date?: string } = {}
+    
     if (!title.trim()) {
-      alert('Пожалуйста, введите название мероприятия')
-      return
+      newErrors.title = 'Пожалуйста, введите название мероприятия'
     }
     
     if (!startsAt) {
-      alert('Пожалуйста, выберите дату и время мероприятия')
+      newErrors.date = 'Пожалуйста, выберите дату и время мероприятия'
+    } else {
+      const eventDate = new Date(startsAt)
+      const now = new Date()
+      if (eventDate <= now) {
+        newErrors.date = 'Дата и время мероприятия должны быть в будущем (минимум через 1 час)'
+      }
+
+      const maxDate = new Date()
+      maxDate.setFullYear(2100, 11, 31)
+      if (eventDate > maxDate) {
+        newErrors.date = 'Дата мероприятия не может быть позже 31 декабря 2100 года'
+      }
+    }
+
+    setErrors(newErrors)
+    
+    if (newErrors.title || newErrors.date) {
       return
     }
 
-    const eventDate = new Date(startsAt)
-    const now = new Date()
-    if (eventDate <= now) {
-      alert('Дата и время мероприятия должны быть в будущем (минимум через 1 час)')
-      return
-    }
-
-    const maxDate = new Date()
-    maxDate.setFullYear(2100, 11, 31)
-    if (eventDate > maxDate) {
-      alert('Дата мероприятия не может быть позже 31 декабря 2100 года')
-      return
-    }
-
-    onSave?.({ title: title.trim(), startsAt, coverFileName, category })
+    onSave?.({ title: title.trim(), startsAt, coverFileName, category, description: description.trim(), author })
   }
 
   const onCoverChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -81,32 +89,69 @@ function CreateEventForm({ onSave }: Props) {
         <span className="label">Название мероприятия *</span>
         <input 
           value={title} 
-          onChange={(e) => setTitle(e.target.value)} 
+          onChange={(e) => {
+            setTitle(e.target.value)
+            if (errors.title) {
+              setErrors(prev => ({ ...prev, title: undefined }))
+            }
+          }} 
           className="input" 
           placeholder="Например: прогулка, кофе..." 
           maxLength={100}
         />
         <div className="hint">Максимум 100 символов</div>
+        {errors.title && (
+          <div className="fieldError">
+            {errors.title}
+          </div>
+        )}
       </label>
 
       <label className="field">
         <span className="label">Категория мероприятия *</span>
-        <select 
-          value={category} 
-          onChange={(e) => setCategory(e.target.value as EventCategory)} 
-          className="input"
-        >
-          {categories.map(cat => (
-            <option key={cat} value={cat}>{cat}</option>
-          ))}
-        </select>
+        <div className="selectWrapper">
+          <select 
+            value={category} 
+            onChange={(e) => {
+              setCategory(e.target.value as EventCategory)
+              setIsSelectOpen(false)
+            }} 
+            className="input input--select"
+            onFocus={() => setIsSelectOpen(true)}
+            onBlur={() => setIsSelectOpen(false)}
+            onMouseDown={() => setIsSelectOpen(!isSelectOpen)}
+          >
+            {categories.map(cat => (
+              <option key={cat} value={cat}>{cat}</option>
+            ))}
+          </select>
+          <div className={`selectArrow ${isSelectOpen ? 'selectArrow--open' : ''}`}>▼</div>
+        </div>
+      </label>
+
+      <label className="field">
+        <span className="label">Описание мероприятия</span>
+        <textarea 
+          value={description} 
+          onChange={(e) => setDescription(e.target.value)} 
+          className="input input--lg" 
+          placeholder="Расскажите подробнее о вашем мероприятии..."
+          rows={4}
+          maxLength={500}
+        />
+        <div className="hint">Максимум 500 символов</div>
       </label>
 
       <label className="field">
         <span className="label">Дата и время мероприятия *</span>
         <input 
           value={startsAt} 
-          onChange={(e) => setStartsAt(e.target.value)} 
+          onChange={(e) => {
+            setStartsAt(e.target.value)
+            if (errors.date) {
+              setErrors(prev => ({ ...prev, date: undefined }))
+            }
+          }} 
           className="input" 
           type="datetime-local"
           min={min}
@@ -115,6 +160,11 @@ function CreateEventForm({ onSave }: Props) {
         <div className="hint">
           Мероприятие должно быть запланировано минимум на 1 час вперед и не позднее 31 декабря 2050 года
         </div>
+        {errors.date && (
+          <div className="fieldError">
+            {errors.date}
+          </div>
+        )}
       </label>
 
       <button type="button" className="button button--full" onClick={save}>

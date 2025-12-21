@@ -1,13 +1,16 @@
 import type { ChangeEvent } from 'react'
 import { useState } from 'react'
+import { Link } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext'
 
 type Props = {
   onLogout: () => void
   onDelete: () => void
+  onEditProfile: () => void
+  isEditing: boolean
 }
 
-function ProfileInfoCard({ onLogout, onDelete }: Props) {
+function ProfileInfoCard({ onLogout, onDelete, onEditProfile, isEditing }: Props) {
   const { user } = useAuth()
   const [avatarName, setAvatarName] = useState<string | null>(null)
 
@@ -33,8 +36,11 @@ function ProfileInfoCard({ onLogout, onDelete }: Props) {
         <button type="button" className="button button--secondary">
           Пройти анкету
         </button>
-        <button type="button" className="button button--secondary">
+        <Link to="/my-events" className="button button--secondary">
           Ваши мероприятия
+        </Link>
+        <button type="button" className="button button--primary" onClick={onEditProfile}>
+          {isEditing ? 'Закрыть редактирование' : 'Редактировать профиль'}
         </button>
       </div>
 

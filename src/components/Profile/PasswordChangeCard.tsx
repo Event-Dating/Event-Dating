@@ -68,6 +68,13 @@ function PasswordChangeCard({ onSaved }: Props) {
     }
   }
 
+  const onCancel = () => {
+    setOldPass('')
+    setNewPass('')
+    setConfirmPass('')
+    setErrors({})
+  }
+
   return (
     <div className="card">
       <div className="cardTitle">Смена пароля</div>
@@ -124,8 +131,12 @@ function PasswordChangeCard({ onSaved }: Props) {
       </label>
 
       <div className="buttonRow">
-        <button type="button" className="button button--ghost">
-          Не помню пароль
+        <button 
+          type="button" 
+          className="button button--ghost"
+          onClick={onCancel}
+        >
+          Отмена
         </button>
         <button 
           type="button" 

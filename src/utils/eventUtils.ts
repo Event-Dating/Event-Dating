@@ -14,6 +14,8 @@ export const createEvent = (payload: {
   startsAt: string
   coverFileName: string | null
   category: EventCategory
+  description: string
+  author: string
 }): EventItem => {
   return {
     id: generateId(),
@@ -21,5 +23,7 @@ export const createEvent = (payload: {
     category: payload.category,
     startsAt: payload.startsAt,
     coverVariant: getRandomCoverVariant(),
+    description: payload.description || 'Описание мероприятия отсутствует',
+    author: payload.author,
   }
 }

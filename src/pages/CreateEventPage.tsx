@@ -18,7 +18,7 @@ function CreateEventPage() {
     }
   }, [user, navigate])
 
-  const handleSave = (payload: { title: string; startsAt: string; coverFileName: string | null; category: EventCategory }) => {
+  const handleSave = (payload: { title: string; startsAt: string; coverFileName: string | null; category: EventCategory; description: string; author: string }) => {
     const newEvent = createEvent(payload)
     addEvent(newEvent)
     console.log('Мероприятие создано:', newEvent)
@@ -36,7 +36,7 @@ function CreateEventPage() {
         <p className="muted">Заполни основные поля и сохрани.</p>
       </div>
 
-      <CreateEventForm onSave={handleSave} />
+      <CreateEventForm onSave={handleSave} author={user?.email || ''} />
     </div>
   )
 }

@@ -8,4 +8,7 @@ export type EventItem = {
   category: EventCategory
   startsAt: string
   coverVariant: EventCoverVariant
+  customCover?: string
+  description: string
+  author: string
 }
