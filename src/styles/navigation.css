@@ -177,9 +177,7 @@
     display: flex;
   }
   
-  .mobileMenuOverlay {
-    display: block;
-  }
+  
   
   .navLinks--mobile {
     display: flex;

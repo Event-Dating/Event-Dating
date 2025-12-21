@@ -66,6 +66,7 @@
    display: flex;
    flex-direction: column;
    gap: 6px;
+   margin-bottom: 20px;
  }
  
  .label {
@@ -297,7 +298,7 @@
  
  .profileGrid {
    display: grid;
-   grid-template-columns: 1.2fr 1fr;
+   
    gap: 12px;
  }
  
@@ -357,10 +358,16 @@
  }
  
  .dangerRow {
-   margin-top: 12px;
+   margin-top: 20px;
    display: flex;
-   justify-content: space-between;
+   align-items: flex-start;
+   flex-direction: column;
    gap: 10px;
+ }
+ 
+ .dangerRow button{
+    padding: 5px;
+    min-width: 150px;
  }
  
  .list {
@@ -442,6 +449,24 @@
  .modalBody {
    display: grid;
    gap: 10px;
+ }
+
+ .fieldError {
+   color: var(--danger);
+   font-size: 12px;
+   margin-top: 4px;
+   display: flex;
+   flex-direction: column;
+   gap: 4px;
+ }
+
+ .input--error {
+   border-color: var(--danger);
+ }
+
+ .input--error:focus {
+   border-color: var(--danger);
+   box-shadow: 0 0 0 4px color-mix(in srgb, var(--danger) 18%, transparent);
  }
  
  

@@ -1,9 +1,5 @@
-import { createContext, useContext, useMemo, useState, type ReactNode } from 'react'
-
-type User = {
-  name: string
-  email: string
-}
+import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from 'react'
+import { usersService, type User } from '../data/users'
 
 type AuthContextValue = {
   user: User | null
@@ -12,68 +8,96 @@ type AuthContextValue = {
   logout: () => Promise<void>
   updatePassword: (oldPassword: string, newPassword: string) => Promise<void>
   deleteAccount: () => Promise<void>
+  updateProfile: (updates: { name?: string; email?: string; avatar?: string }) => Promise<void>
 }
-
-const STORAGE_KEY = 'event_dating_user'
 
 const AuthContext = createContext<AuthContextValue | null>(null)
 
-function readStoredUser(): User | null {
-  const raw = localStorage.getItem(STORAGE_KEY)
-  if (!raw) return null
-
-  try {
-    const parsed = JSON.parse(raw) as unknown
-    if (
-      typeof parsed === 'object' &&
-      parsed !== null &&
-      'name' in parsed &&
-      'email' in parsed &&
-      typeof (parsed as { name: unknown }).name === 'string' &&
-      typeof (parsed as { email: unknown }).email === 'string'
-    ) {
-      return {
-        name: (parsed as { name: string }).name,
-        email: (parsed as { email: string }).email,
-      }
-    }
-    return null
-  } catch {
-    return null
-  }
-}
-
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<User | null>(() => readStoredUser())
+  const [user, setUser] = useState<User | null>(null)
+
+  useEffect(() => {
+    // Инициализация тестового пользователя при первом запуске
+    usersService.initializeTestUser()
+    
+    // Загрузка текущего пользователя
+    const currentUser = usersService.getCurrentUser()
+    setUser(currentUser)
+  }, [])
 
   const value = useMemo<AuthContextValue>(() => {
-    const login = async (email: string, _password: string) => {
-      const nextUser: User = { name: 'Пользователь', email }
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(nextUser))
-      setUser(nextUser)
+    const login = async (email: string, password: string) => {
+      const authenticatedUser = usersService.authenticateUser(email, password)
+      
+      if (!authenticatedUser) {
+        throw new Error('Неверные учетные данные')
+      }
+      
+      usersService.setCurrentUser(authenticatedUser)
+      setUser(authenticatedUser)
     }
 
-    const register = async (name: string, email: string, _password: string) => {
-      const nextUser: User = { name: name.trim() || 'Пользователь', email }
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(nextUser))
-      setUser(nextUser)
+    const register = async (name: string, email: string, password: string) => {
+      try {
+        const newUser = usersService.createUser({
+          name: name.trim(),
+          email: email.trim(),
+          password
+        })
+        
+        usersService.setCurrentUser(newUser)
+        setUser(newUser)
+      } catch (error) {
+        throw new Error(error instanceof Error ? error.message : 'Ошибка при регистрации')
+      }
     }
 
     const logout = async () => {
-      localStorage.removeItem(STORAGE_KEY)
+      usersService.setCurrentUser(null)
       setUser(null)
     }
 
-    const updatePassword = async (_oldPassword: string, _newPassword: string) => {
-      if (!user) return
+    const updatePassword = async (oldPassword: string, newPassword: string) => {
+      if (!user) {
+        throw new Error('Пользователь не авторизован')
+      }
+      
+      try {
+        usersService.updatePassword(user.id, oldPassword, newPassword)
+        
+        // Обновляем данные пользователя после смены пароля
+        const updatedUser = usersService.getCurrentUser()
+        setUser(updatedUser)
+      } catch (error) {
+        throw new Error(error instanceof Error ? error.message : 'Ошибка при смене пароля')
+      }
     }
 
     const deleteAccount = async () => {
-      localStorage.removeItem(STORAGE_KEY)
+      if (!user) return
+      
+      usersService.deleteUser(user.id)
+      usersService.setCurrentUser(null)
       setUser(null)
     }
 
-    return { user, login, register, logout, updatePassword, deleteAccount }
+    const updateProfile = async (updates: { name?: string; email?: string; avatar?: string }) => {
+      if (!user) {
+        throw new Error('Пользователь не авторизован')
+      }
+      
+      try {
+        const updatedUser = usersService.updateUser(user.id, updates)
+        if (updatedUser) {
+          usersService.setCurrentUser(updatedUser)
+          setUser(updatedUser)
+        }
+      } catch (error) {
+        throw new Error(error instanceof Error ? error.message : 'Ошибка при обновлении профиля')
+      }
+    }
+
+    return { user, login, register, logout, updatePassword, deleteAccount, updateProfile }
   }, [user])
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
