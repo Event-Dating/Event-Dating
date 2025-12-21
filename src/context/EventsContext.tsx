@@ -1,20 +1,59 @@
-import { createContext, ReactNode, useContext, useState } from 'react'
-import { mockEvents } from '../data/mockEvents'
+import { createContext, ReactNode, useContext, useEffect, useState } from 'react'
+import { eventsService } from '../data/events'
 import type { EventItem } from '../types/event'
 
 interface EventsContextType {
   events: EventItem[]
-  addEvent: (event: EventItem) => void
+  addEvent: (event: EventItem) => Promise<void>
   updateEvent: (id: string, updates: Partial<EventItem>) => void
+  loading: boolean
+  error: string | null
+  refreshEvents: () => Promise<void>
 }
 
 const EventsContext = createContext<EventsContextType | undefined>(undefined)
 
 export function EventsProvider({ children }: { children: ReactNode }) {
-  const [events, setEvents] = useState<EventItem[]>(mockEvents)
+  const [events, setEvents] = useState<EventItem[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
-  const addEvent = (event: EventItem) => {
-    setEvents(prev => [...prev, event])
+  const refreshEvents = async () => {
+    try {
+      setLoading(true)
+      setError(null)
+      const fetchedEvents = await eventsService.getEvents()
+      setEvents(fetchedEvents)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to fetch events')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    refreshEvents()
+  }, [])
+
+  const addEvent = async (event: EventItem) => {
+    try {
+      setError(null)
+      // В реальном приложении нужно получить ID текущего пользователя
+      const currentUserEmail = 'current-user@example.com' // Временно
+      await eventsService.createEvent({
+        title: event.title,
+        category: event.category,
+        starts_at: event.startsAt,
+        cover_variant: event.coverVariant,
+        description: event.description,
+        author_id: 'current-user-id' // Временно
+      }, currentUserEmail)
+      
+      await refreshEvents()
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to create event')
+      throw err
+    }
   }
 
   const updateEvent = (id: string, updates: Partial<EventItem>) => {
@@ -24,7 +63,7 @@ export function EventsProvider({ children }: { children: ReactNode }) {
   }
 
   return (
-    <EventsContext.Provider value={{ events, addEvent, updateEvent }}>
+    <EventsContext.Provider value={{ events, addEvent, updateEvent, loading, error, refreshEvents }}>
       {children}
     </EventsContext.Provider>
   )

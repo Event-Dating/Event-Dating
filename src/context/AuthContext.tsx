@@ -27,7 +27,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const value = useMemo<AuthContextValue>(() => {
     const login = async (email: string, password: string) => {
-      const authenticatedUser = usersService.authenticateUser(email, password)
+      const authenticatedUser = await usersService.authenticateUser(email, password)
       
       if (!authenticatedUser) {
         throw new Error('Неверные учетные данные')
@@ -39,7 +39,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     const register = async (name: string, email: string, password: string) => {
       try {
-        const newUser = usersService.createUser({
+        const newUser = await usersService.createUser({
           name: name.trim(),
           email: email.trim(),
           password
