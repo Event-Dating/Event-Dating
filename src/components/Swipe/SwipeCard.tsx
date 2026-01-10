@@ -1,9 +1,10 @@
 import {
 	motion,
-	useMotionValue,
 	useTransform,
+	type MotionValue,
 	type PanInfo,
 } from 'framer-motion'
+// Removed useMotionValue import as it's passed from parent
 
 export type SwipeProfile = {
 	id: string
@@ -19,10 +20,11 @@ export type SwipeProfile = {
 type Props = {
 	profile: SwipeProfile
 	onSwipe: (direction: 'left' | 'right') => void
+	dragX: MotionValue<number> // Received from parent
 }
 
-function SwipeCard({ profile, onSwipe }: Props) {
-	const x = useMotionValue(0)
+function SwipeCard({ profile, onSwipe, dragX }: Props) {
+	const x = dragX // Use passed motion value
 	const rotate = useTransform(x, [-200, 200], [-30, 30])
 	const opacity = useTransform(
 		x,
@@ -30,12 +32,12 @@ function SwipeCard({ profile, onSwipe }: Props) {
 		[0.5, 1, 1, 1, 0.5]
 	)
 
-	// Page background tint (works via fixed position overlay)
-	const pageTint = useTransform(
-		x,
-		[-150, 0, 150],
-		['rgba(255, 0, 0, 0.1)', 'rgba(0, 0, 0, 0)', 'rgba(0, 255, 0, 0.1)']
-	)
+	// Background tint logic moved to parent
+	// const pageTint = useTransform(
+	// 	x,
+	// 	[-150, 0, 150],
+	// 	['rgba(255, 0, 0, 0.1)', 'rgba(0, 0, 0, 0)', 'rgba(0, 255, 0, 0.1)']
+	// )
 
 	const handleDragEnd = (
 		_: MouseEvent | TouchEvent | PointerEvent,
@@ -55,15 +57,7 @@ function SwipeCard({ profile, onSwipe }: Props) {
 			dragConstraints={{ left: 0, right: 0 }}
 			onDragEnd={handleDragEnd}
 			className='swipeCard'
-			initial={{ scale: 0.95, opacity: 0 }}
-			animate={{ scale: 1, opacity: 1 }}
-			exit={{ scale: 0.95, opacity: 0 }}
-			transition={{ duration: 0.3 }}
 		>
-			<motion.div
-				style={{ background: pageTint }}
-				className='swipeCard__pageTint'
-			/>
 			<div
 				className='swipeCard__image'
 				style={{ backgroundImage: `url(${profile.photo})` }}

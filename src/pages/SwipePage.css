@@ -275,21 +275,27 @@
 	z-index: 100;
 	align-items: center;
 	justify-content: space-between;
-	padding: 0 20px;
+	padding: 0 15px;
 	box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+.swipePage__mobileHeaderLeft {
+	display: flex;
+	align-items: center;
+	gap: 15px;
+}
+
+.swipePage__mobileBack {
+	font-size: 24px;
+	text-decoration: none;
+	color: #333;
+	line-height: 1;
 }
 
 .swipePage__mobileTitle {
 	font-size: 18px;
 	font-weight: 700;
 	margin: 0;
-	position: absolute;
-	left: 50%;
-	transform: translateX(-50%);
-	/* Style button lookalike if needed, or just text */
-	border: 1px solid #eee;
-	padding: 8px 16px;
-	border-radius: 20px;
 }
 
 .swipePage__hamburger {
@@ -322,11 +328,19 @@
 	margin: 0;
 }
 
+.swipePage__tint {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	z-index: 0;
+	pointer-events: none;
+}
+
 /* Responsive adjustments */
 @media (max-width: 768px) {
-	.swipePage {
-		padding-top: 60px; /* Space for header */
-	}
+	/* Prevent scroll on body/html */
 
 	.swipePage__mobileHeader {
 		display: flex;
@@ -334,19 +348,22 @@
 
 	.swipePage__sidebar {
 		padding-top: 20px;
-		z-index: 101; /* Above header */
+		z-index: 200; /* Above header */
+		transform: translateX(-100%); /* Slide from left */
+		transition: transform 0.3s ease;
+	}
+
+	.swipePage__sidebar.open {
+		transform: translateX(0);
 	}
 
 	.swipePage__sidebarHeaderMobile {
 		display: flex;
 	}
 
-	/* Hide desktop back link in drawer if redundant or style differently */
-	/* .swipePage__header { display: none; } */
-
 	.swipePage__closeSidebar {
 		display: block;
-		position: static; /* In flex container */
+		position: static;
 		font-size: 24px;
 		padding: 5px;
 	}

@@ -69,16 +69,14 @@ function SwipeFilters({ filters, onChange }: Props) {
 					<div
 						className='swipeFilters__range'
 						style={{
-							left: `${((filters.ageRange[0] - 18) / (100 - 18)) * 100}%`,
-							right: `${
-								100 - ((filters.ageRange[1] - 18) / (100 - 18)) * 100
-							}%`,
+							left: `${((filters.ageRange[0] - 18) / (50 - 18)) * 100}%`,
+							right: `${100 - ((filters.ageRange[1] - 18) / (50 - 18)) * 100}%`,
 						}}
 					></div>
 					<input
 						type='range'
 						min={18}
-						max={100}
+						max={50}
 						value={filters.ageRange[0]}
 						onChange={e => {
 							const val = Math.min(
@@ -92,7 +90,7 @@ function SwipeFilters({ filters, onChange }: Props) {
 					<input
 						type='range'
 						min={18}
-						max={100}
+						max={50}
 						value={filters.ageRange[1]}
 						onChange={e => {
 							const val = Math.max(
@@ -111,7 +109,7 @@ function SwipeFilters({ filters, onChange }: Props) {
 						<input
 							type='number'
 							min={18}
-							max={100}
+							max={50}
 							value={filters.ageRange[0]}
 							onChange={e => handleAgeChange(0, e.target.value)}
 							className='swipeFilters__numberInput'
@@ -122,7 +120,7 @@ function SwipeFilters({ filters, onChange }: Props) {
 						<input
 							type='number'
 							min={18}
-							max={100}
+							max={50}
 							value={filters.ageRange[1]}
 							onChange={e => handleAgeChange(1, e.target.value)}
 							className='swipeFilters__numberInput'

@@ -1,5 +1,10 @@
-import { AnimatePresence } from 'framer-motion'
-import { useMemo, useState } from 'react'
+import {
+	AnimatePresence,
+	motion,
+	useMotionValue,
+	useTransform,
+} from 'framer-motion'
+import { useEffect, useMemo, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import SwipeCard from '../components/Swipe/SwipeCard'
 import SwipeFilters from '../components/Swipe/SwipeFilters'
@@ -19,9 +24,22 @@ function SwipePage() {
 	const [showFilters, setShowFilters] = useState(false) // Mobile filter toggle
 	const [filters, setFilters] = useState({
 		gender: 'Любой',
-		ageRange: [18, 50] as [number, number],
+		ageRange: [18, 50] as [number, number], // Fixed max age default to 50
 		interests: [] as string[],
 	})
+
+	// Animation state
+	const x = useMotionValue(0)
+	const pageTint = useTransform(
+		x,
+		[-150, 0, 150],
+		['rgba(255, 0, 0, 0.1)', 'rgba(0, 0, 0, 0)', 'rgba(0, 255, 0, 0.1)']
+	)
+
+	// Reset x when index changes (new card)
+	useEffect(() => {
+		x.set(0)
+	}, [currentIndex, x])
 
 	// Filter profiles
 	const filteredProfiles = useMemo(() => {
@@ -86,18 +104,24 @@ function SwipePage() {
 
 	return (
 		<div className='swipePage'>
-			{/* Mobile Header */}
-			<header className='swipePage__mobileHeader'>
+			{/* Page Background Tint - Moved here to be outside transform context */}
+			<motion.div
+				className='swipePage__tint'
+				style={{ background: pageTint }}
+			/>
+
+			{/* Swipe Toolbar (Mobile Only) */}
+			<div className='swipePage__mobileToolbar'>
+				<Link to={`/events/${id}`} className='swipePage__toolbarBack'>
+					← Назад
+				</Link>
 				<button
-					className='swipePage__hamburger'
+					className='swipePage__toolbarFilterBtn'
 					onClick={() => setShowFilters(true)}
 				>
-					<div className='bar'></div>
-					<div className='bar'></div>
-					<div className='bar'></div>
+					<span className='icon'>⚙️</span> Фильтры
 				</button>
-				<h1 className='swipePage__mobileTitle'>Event Dating</h1>
-			</header>
+			</div>
 
 			<div className={`swipePage__sidebar ${showFilters ? 'open' : ''}`}>
 				<div className='swipePage__sidebarHeaderMobile'>
@@ -130,6 +154,7 @@ function SwipePage() {
 								key={currentProfile.id}
 								profile={currentProfile}
 								onSwipe={handleSwipe}
+								dragX={x} // Pass motion value
 							/>
 						) : (
 							<div className='swipePage__empty'>
