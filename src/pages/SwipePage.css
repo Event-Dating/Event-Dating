@@ -401,56 +401,106 @@
 	}
 }
 
-/* New Mobile & Slider Styles */
-.swipeFilters__sliderGroup {
+/* Swipe Toolbar (Mobile) */
+.swipePage__mobileToolbar {
+	display: none;
+	align-items: center;
+	justify-content: space-between;
+	padding: 10px 15px;
+	background: white;
+	border-bottom: 1px solid #eee;
+	z-index: 10;
+}
+
+.swipePage__toolbarBack {
+	text-decoration: none;
+	color: #333;
+	font-weight: 500;
+	font-size: 16px;
 	display: flex;
 	align-items: center;
-	gap: 10px;
-	flex: 1;
+	gap: 4px;
 }
 
-.swipeFilters__sliderLabel {
+.swipePage__toolbarFilterBtn {
+	background: white;
+	border: 1px solid #ddd;
+	border-radius: 20px;
+	padding: 6px 12px;
 	font-size: 14px;
-	color: #888;
-	min-width: 20px;
-}
-
-.swipeFilters__slider {
-	width: 100%;
-	accent-color: var(--accent-orange);
 	cursor: pointer;
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	color: #333;
+	transition: background-color 0.2s;
 }
 
-.swipePage__mobileFilterBtn {
-	display: none; /* Desktop hidden */
+.swipePage__toolbarFilterBtn:hover {
+	background-color: #f9f9f9;
 }
 
-.swipePage__closeSidebar {
-	display: none;
+.swipePage__toolbarFilterBtn .icon {
+	display: flex;
+	align-items: center;
+	font-size: 16px;
 }
 
+/* Responsive adjustments */
 @media (max-width: 768px) {
-	.swipePage__mobileFilterBtn {
-		display: block;
-		margin-bottom: 20px;
-		padding: 10px 20px;
-		background: white;
-		border: 1px solid #ddd;
-		border-radius: 30px;
-		font-weight: 600;
-		color: #333;
-		box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+	/* Prevent scroll on body/html */
+	.swipePage {
+		/* Adjust height to fit below standard navbar (approx 60px) and toolbar (approx 50px) */
+		height: calc(100vh - 60px);
+		flex-direction: column;
+		padding-top: 0;
+	}
+
+	.swipePage__mobileToolbar {
+		display: flex;
+	}
+
+	/* Hide the sidebar back button on mobile since we have one in toolbar */
+	.swipePage__back {
+		display: none;
+	}
+
+	.swipePage__sidebar {
+		top: 0; /* Align with top of swipePage container */
+		height: 100%;
+		z-index: 200;
+		transform: translateX(-100%);
+		transition: transform 0.3s ease;
+	}
+
+	.swipePage__sidebar.open {
+		transform: translateX(0);
+	}
+
+	.swipePage__sidebarHeaderMobile {
+		display: flex;
 	}
 
 	.swipePage__closeSidebar {
 		display: block;
-		position: absolute;
-		top: 20px;
-		right: 20px;
-		background: none;
-		border: none;
+		position: static;
 		font-size: 24px;
-		color: #333;
+		padding: 5px;
+	}
+
+	.sideDesktopOnly {
+		display: none;
+	}
+
+	/* Adjust Content to fill remaining space */
+	.swipePage__content {
+		flex: 1;
+		overflow: hidden; /* Prevent inner scroll overriding swipe */
 		padding: 10px;
+	}
+
+	.swipePage__cardContainer {
+		height: 100%; /* Fill available space */
+		max-height: 600px; /* But don't go too crazy */
 	}
 }
