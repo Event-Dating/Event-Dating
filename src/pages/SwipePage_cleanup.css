@@ -1,0 +1,8 @@
+@media (max-width: 768px) {
+	/* ... existing styles ... */
+
+	/* Clean up old mobile button styles if any remain */
+	.swipePage__mobileFilterBtn {
+		display: none !important;
+	}
+}

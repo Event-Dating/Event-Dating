@@ -63,27 +63,69 @@ function SwipeFilters({ filters, onChange }: Props) {
 				<label className='swipeFilters__label'>
 					Возраст: {filters.ageRange[0]} - {filters.ageRange[1]}
 				</label>
+
+				<div className='swipeFilters__dualSliderContainer'>
+					<div className='swipeFilters__track'></div>
+					<div
+						className='swipeFilters__range'
+						style={{
+							left: `${((filters.ageRange[0] - 18) / (100 - 18)) * 100}%`,
+							right: `${
+								100 - ((filters.ageRange[1] - 18) / (100 - 18)) * 100
+							}%`,
+						}}
+					></div>
+					<input
+						type='range'
+						min={18}
+						max={100}
+						value={filters.ageRange[0]}
+						onChange={e => {
+							const val = Math.min(
+								parseInt(e.target.value),
+								filters.ageRange[1] - 1
+							)
+							handleAgeChange(0, val.toString())
+						}}
+						className='swipeFilters__thumb swipeFilters__thumb--left'
+					/>
+					<input
+						type='range'
+						min={18}
+						max={100}
+						value={filters.ageRange[1]}
+						onChange={e => {
+							const val = Math.max(
+								parseInt(e.target.value),
+								filters.ageRange[0] + 1
+							)
+							handleAgeChange(1, val.toString())
+						}}
+						className='swipeFilters__thumb swipeFilters__thumb--right'
+					/>
+				</div>
+
 				<div className='swipeFilters__ageInputs'>
-					<div className='swipeFilters__sliderGroup'>
-						<span className='swipeFilters__sliderLabel'>От</span>
+					<div className='swipeFilters__inputGroup'>
+						<span className='swipeFilters__inputLabel'>от</span>
 						<input
-							type='range'
+							type='number'
 							min={18}
 							max={100}
 							value={filters.ageRange[0]}
 							onChange={e => handleAgeChange(0, e.target.value)}
-							className='swipeFilters__slider'
+							className='swipeFilters__numberInput'
 						/>
 					</div>
-					<div className='swipeFilters__sliderGroup'>
-						<span className='swipeFilters__sliderLabel'>До</span>
+					<div className='swipeFilters__inputGroup'>
+						<span className='swipeFilters__inputLabel'>до</span>
 						<input
-							type='range'
+							type='number'
 							min={18}
 							max={100}
 							value={filters.ageRange[1]}
 							onChange={e => handleAgeChange(1, e.target.value)}
-							className='swipeFilters__slider'
+							className='swipeFilters__numberInput'
 						/>
 					</div>
 				</div>

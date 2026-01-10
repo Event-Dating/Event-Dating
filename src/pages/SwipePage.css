@@ -1,3 +1,5 @@
+@import './SwipePage_slider.css';
+
 .swipePage {
 	height: 100vh;
 	display: flex;
@@ -261,8 +263,97 @@
 	color: #ff4757;
 }
 
-.swipePage__controlBtn--match {
-	color: #2ed573;
+/* Mobile Header & Hamburger */
+.swipePage__mobileHeader {
+	display: none;
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 60px;
+	background: white;
+	z-index: 100;
+	align-items: center;
+	justify-content: space-between;
+	padding: 0 20px;
+	box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+.swipePage__mobileTitle {
+	font-size: 18px;
+	font-weight: 700;
+	margin: 0;
+	position: absolute;
+	left: 50%;
+	transform: translateX(-50%);
+	/* Style button lookalike if needed, or just text */
+	border: 1px solid #eee;
+	padding: 8px 16px;
+	border-radius: 20px;
+}
+
+.swipePage__hamburger {
+	background: none;
+	border: none;
+	cursor: pointer;
+	display: flex;
+	flex-direction: column;
+	gap: 5px;
+	padding: 5px;
+}
+
+.swipePage__hamburger .bar {
+	width: 24px;
+	height: 3px;
+	background: #333;
+	border-radius: 2px;
+}
+
+.swipePage__sidebarHeaderMobile {
+	display: none;
+	align-items: center;
+	justify-content: space-between;
+	margin-bottom: 20px;
+}
+
+.swipePage__sidebarTitleMobile {
+	font-size: 20px;
+	font-weight: 700;
+	margin: 0;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+	.swipePage {
+		padding-top: 60px; /* Space for header */
+	}
+
+	.swipePage__mobileHeader {
+		display: flex;
+	}
+
+	.swipePage__sidebar {
+		padding-top: 20px;
+		z-index: 101; /* Above header */
+	}
+
+	.swipePage__sidebarHeaderMobile {
+		display: flex;
+	}
+
+	/* Hide desktop back link in drawer if redundant or style differently */
+	/* .swipePage__header { display: none; } */
+
+	.swipePage__closeSidebar {
+		display: block;
+		position: static; /* In flex container */
+		font-size: 24px;
+		padding: 5px;
+	}
+
+	.sideDesktopOnly {
+		display: none;
+	}
 }
 
 @media (max-width: 768px) {

@@ -30,13 +30,6 @@ function SwipeCard({ profile, onSwipe }: Props) {
 		[0.5, 1, 1, 1, 0.5]
 	)
 
-	// Background color change based on drag direction
-	const background = useTransform(
-		x,
-		[-150, 0, 150],
-		['rgba(255, 100, 100, 0.5)', 'rgba(0, 0, 0, 0)', 'rgba(100, 255, 100, 0.5)']
-	)
-
 	// Page background tint (works via fixed position overlay)
 	const pageTint = useTransform(
 		x,
@@ -75,8 +68,7 @@ function SwipeCard({ profile, onSwipe }: Props) {
 				className='swipeCard__image'
 				style={{ backgroundImage: `url(${profile.photo})` }}
 			>
-				<motion.div className='swipeCard__overlay' style={{ background }} />
-
+				{/* Removed card overlay tint as requested */}
 				<div className='swipeCard__content'>
 					<div className='swipeCard__header'>
 						<h2 className='swipeCard__name'>

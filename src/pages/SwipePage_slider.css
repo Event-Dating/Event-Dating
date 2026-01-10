@@ -1,0 +1,103 @@
+/* Update SwipePage.css with new slider styles appended */
+
+/* Dual Slider Styles */
+.swipeFilters__dualSliderContainer {
+	position: relative;
+	width: 100%;
+	height: 20px;
+	margin-bottom: 20px;
+}
+
+.swipeFilters__track {
+	position: absolute;
+	top: 50%;
+	transform: translateY(-50%);
+	width: 100%;
+	height: 4px;
+	background: #e0e0e0;
+	border-radius: 2px;
+	z-index: 1;
+}
+
+.swipeFilters__range {
+	position: absolute;
+	top: 50%;
+	transform: translateY(-50%);
+	height: 4px;
+	background: var(--accent-orange);
+	z-index: 2;
+	border-radius: 2px;
+}
+
+.swipeFilters__thumb {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	-webkit-appearance: none;
+	appearance: none;
+	pointer-events: none;
+	background: none;
+	z-index: 3;
+	margin: 0;
+}
+
+.swipeFilters__thumb::-webkit-slider-thumb {
+	-webkit-appearance: none;
+	pointer-events: auto;
+	width: 16px;
+	height: 16px;
+	background: white;
+	border: 2px solid var(--accent-orange);
+	border-radius: 50%;
+	cursor: pointer;
+	margin-top: 2px; /* correction */
+}
+
+.swipeFilters__thumb::-moz-range-thumb {
+	pointer-events: auto;
+	width: 16px;
+	height: 16px;
+	background: white;
+	border: 2px solid var(--accent-orange);
+	border-radius: 50%;
+	cursor: pointer;
+}
+
+.swipeFilters__ageInputs {
+	display: flex;
+	justify-content: space-between;
+	gap: 15px;
+}
+
+.swipeFilters__inputGroup {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	flex: 1;
+	background: white;
+	border: 1px solid #e0e0e0;
+	padding: 8px 12px;
+	border-radius: 8px;
+}
+
+.swipeFilters__inputLabel {
+	color: #888;
+	font-size: 14px;
+}
+
+.swipeFilters__numberInput {
+	width: 100%;
+	border: none;
+	font-size: 16px;
+	padding: 0;
+	text-align: right;
+	-moz-appearance: textfield;
+	appearance: textfield;
+}
+
+.swipeFilters__numberInput::-webkit-outer-spin-button,
+.swipeFilters__numberInput::-webkit-inner-spin-button {
+	-webkit-appearance: none;
+	margin: 0;
+}

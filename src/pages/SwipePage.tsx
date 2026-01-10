@@ -86,30 +86,43 @@ function SwipePage() {
 
 	return (
 		<div className='swipePage'>
-			<div className={`swipePage__sidebar ${showFilters ? 'open' : ''}`}>
+			{/* Mobile Header */}
+			<header className='swipePage__mobileHeader'>
 				<button
-					className='swipePage__closeSidebar'
-					onClick={() => setShowFilters(false)}
+					className='swipePage__hamburger'
+					onClick={() => setShowFilters(true)}
 				>
-					✕
+					<div className='bar'></div>
+					<div className='bar'></div>
+					<div className='bar'></div>
 				</button>
+				<h1 className='swipePage__mobileTitle'>Event Dating</h1>
+			</header>
+
+			<div className={`swipePage__sidebar ${showFilters ? 'open' : ''}`}>
+				<div className='swipePage__sidebarHeaderMobile'>
+					<h2 className='swipePage__sidebarTitleMobile'>Фильтры</h2>
+					<button
+						className='swipePage__closeSidebar'
+						onClick={() => setShowFilters(false)}
+					>
+						✕
+					</button>
+				</div>
 				<div className='swipePage__header'>
 					<Link to={`/events/${id}`} className='swipePage__back'>
 						<span>←</span> Назад к мероприятию
 					</Link>
-					<h1 className='swipePage__eventTitle'>{event.title}</h1>
+					<h1 className='swipePage__eventTitle sideDesktopOnly'>
+						{event.title}
+					</h1>
 				</div>
 
 				<SwipeFilters filters={filters} onChange={setFilters} />
 			</div>
 
 			<div className='swipePage__content'>
-				<button
-					className='swipePage__mobileFilterBtn'
-					onClick={() => setShowFilters(true)}
-				>
-					Фильтры
-				</button>
+				{/* Removed in-content filter button */}
 				<div className='swipePage__cardContainer'>
 					<AnimatePresence>
 						{currentProfile ? (
