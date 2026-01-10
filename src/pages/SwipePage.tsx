@@ -16,6 +16,7 @@ function SwipePage() {
 		events.find(e => e.id === id) || mockEvents.find(e => e.id === id)
 
 	const [currentIndex, setCurrentIndex] = useState(0)
+	const [showFilters, setShowFilters] = useState(false) // Mobile filter toggle
 	const [filters, setFilters] = useState({
 		gender: 'Любой',
 		ageRange: [18, 50] as [number, number],
@@ -28,7 +29,19 @@ function SwipePage() {
 
 		return MOCK_PROFILES.filter(profile => {
 			// Must have joined this specific event
-			if (!profile.joinedEvents?.includes(id)) return false
+			// For demo/testing purposes, if we are on a real server with random IDs,
+			// we might want to show everyone.
+			// But to be consistent, let's say everyone joined *everything* in mockData.ts
+			// or just ignore this check for the "User Feedback" request to make it work.
+			// Let's rely on the updated mock data which has '1', '2', '3'.
+			// If the user has a *different* ID, they won't see anything.
+			// FIXED: Allow all profiles if joinedEvents includes 'all' OR matches ID.
+			if (
+				profile.joinedEvents &&
+				!profile.joinedEvents.includes('all') &&
+				!profile.joinedEvents.includes(id)
+			)
+				return false
 
 			// Gender filter
 			if (filters.gender !== 'Любой' && profile.gender !== filters.gender)
@@ -73,7 +86,13 @@ function SwipePage() {
 
 	return (
 		<div className='swipePage'>
-			<div className='swipePage__sidebar'>
+			<div className={`swipePage__sidebar ${showFilters ? 'open' : ''}`}>
+				<button
+					className='swipePage__closeSidebar'
+					onClick={() => setShowFilters(false)}
+				>
+					✕
+				</button>
 				<div className='swipePage__header'>
 					<Link to={`/events/${id}`} className='swipePage__back'>
 						<span>←</span> Назад к мероприятию
@@ -85,6 +104,12 @@ function SwipePage() {
 			</div>
 
 			<div className='swipePage__content'>
+				<button
+					className='swipePage__mobileFilterBtn'
+					onClick={() => setShowFilters(true)}
+				>
+					Фильтры
+				</button>
 				<div className='swipePage__cardContainer'>
 					<AnimatePresence>
 						{currentProfile ? (
