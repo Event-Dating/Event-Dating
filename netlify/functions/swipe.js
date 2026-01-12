@@ -1,12 +1,16 @@
-const { createClient } = require('@supabase/supabase-js')
+import pg from 'pg'
 
-// Инициализация Supabase (PostgreSQL)
-const supabase = createClient(
-  process.env.SUPABASE_URL,
-  process.env.SUPABASE_SERVICE_KEY
-)
+const { Pool } = pg
 
-exports.handler = async (event) => {
+// Утилита для подключения к базе данных
+async function getConnection() {
+  return new Pool({
+    connectionString: process.env.NETLIFY_DATABASE_URL,
+    ssl: { rejectUnauthorized: false }
+  })
+}
+
+export const handler = async (event) => {
   // CORS headers
   const headers = {
     'Access-Control-Allow-Origin': '*',
@@ -24,7 +28,7 @@ exports.handler = async (event) => {
   }
 
   try {
-    const { swiperId, targetId, direction, eventId } = JSON.parse(event.body)
+    const { swiperId, targetId, direction, eventId } = JSON.parse(event.body || '{}')
     
     if (!swiperId || !targetId || !direction) {
       return {
@@ -34,78 +38,94 @@ exports.handler = async (event) => {
       }
     }
 
+    const pool = await getConnection()
+
     // 1. Сохраняем свайп
-    const { data: swipe, error: swipeError } = await supabase
-      .from('swipes')
-      .insert({
-        swiper_id: swiperId,
-        target_id: targetId,
-        direction: direction,
-        event_id: eventId || null
-      })
-      .select()
-      .single()
+    try {
+      const swipeResult = await pool.query(
+        `INSERT INTO swipes (swiper_id, target_id, direction, event_id) 
+         VALUES ($1, $2, $3, $4) 
+         RETURNING *`,
+        [swiperId, targetId, direction, eventId || null]
+      )
 
-    if (swipeError) {
-      if (swipeError.code === '23505') { // Unique violation
-        return {
-          statusCode: 409,
-          headers,
-          body: JSON.stringify({ error: 'Already swiped' })
+      const swipe = swipeResult.rows[0]
+
+      // 2. Проверяем взаимный лайк (match)
+      if (direction === 'right') {
+        const mutualResult = await pool.query(
+          `SELECT * FROM swipes 
+           WHERE swiper_id = $1 AND target_id = $2 AND direction = 'right'
+           LIMIT 1`,
+          [targetId, swiperId]
+        )
+
+        // 3. Если взаимный лайк - создаем чат
+        if (mutualResult.rows.length > 0) {
+          const user1Id = swiperId < targetId ? swiperId : targetId
+          const user2Id = swiperId < targetId ? targetId : swiperId
+          
+          try {
+            const chatResult = await pool.query(
+              `INSERT INTO chats (user1_id, user2_id, event_id) 
+               VALUES ($1, $2, $3) 
+               ON CONFLICT (user1_id, user2_id, event_id) DO NOTHING
+               RETURNING *`,
+              [user1Id, user2Id, eventId || null]
+            )
+
+            await pool.end()
+
+            return {
+              statusCode: 200,
+              headers,
+              body: JSON.stringify({ 
+                swipe, 
+                match: true, 
+                chat: chatResult.rows[0] || null 
+              })
+            }
+          } catch (chatError) {
+            // Игнорируем ошибку уникальности чата
+            if (chatError.code !== '23505') {
+              console.error('Chat creation error:', chatError)
+            }
+          }
         }
-      }
-      throw swipeError
-    }
 
-    // 2. Проверяем взаимный лайк (match)
-    if (direction === 'right') {
-      const { data: mutualSwipe } = await supabase
-        .from('swipes')
-        .select('*')
-        .eq('swiper_id', targetId)
-        .eq('target_id', swiperId)
-        .eq('direction', 'right')
-        .single()
-
-      // 3. Если взаимный лайк - создаем чат
-      if (mutualSwipe) {
-        // Определяем порядок user1_id < user2_id для уникальности
-        const user1Id = swiperId < targetId ? swiperId : targetId
-        const user2Id = swiperId < targetId ? targetId : swiperId
-        
-        const { data: chat, error: chatError } = await supabase
-          .from('chats')
-          .insert({
-            user1_id: user1Id,
-            user2_id: user2Id,
-            event_id: eventId || null
-          })
-          .select()
-          .single()
-
-        if (chatError && chatError.code !== '23505') { // Игнорируем если чат уже существует
-          console.error('Chat creation error:', chatError)
-        }
+        await pool.end()
 
         return {
           statusCode: 200,
           headers,
           body: JSON.stringify({ 
             swipe, 
-            match: true, 
-            chat: chat || null 
+            match: false 
           })
         }
       }
-    }
 
-    return {
-      statusCode: 200,
-      headers,
-      body: JSON.stringify({ 
-        swipe, 
-        match: false 
-      })
+      await pool.end()
+
+      return {
+        statusCode: 200,
+        headers,
+        body: JSON.stringify({ 
+          swipe, 
+          match: false 
+        })
+      }
+    } catch (insertError) {
+      await pool.end()
+      
+      if (insertError.code === '23505') { // Unique violation
+        return {
+          statusCode: 409,
+          headers,
+          body: JSON.stringify({ error: 'Already swiped' })
+        }
+      }
+      throw insertError
     }
 
   } catch (error) {

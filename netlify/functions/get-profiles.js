@@ -1,11 +1,16 @@
-const { createClient } = require('@supabase/supabase-js')
+import pg from 'pg'
 
-const supabase = createClient(
-  process.env.SUPABASE_URL,
-  process.env.SUPABASE_SERVICE_KEY
-)
+const { Pool } = pg
 
-exports.handler = async (event) => {
+// Утилита для подключения к базе данных
+async function getConnection() {
+  return new Pool({
+    connectionString: process.env.NETLIFY_DATABASE_URL,
+    ssl: { rejectUnauthorized: false }
+  })
+}
+
+export const handler = async (event) => {
   const headers = {
     'Access-Control-Allow-Origin': '*',
     'Access-Control-Allow-Headers': 'Content-Type'
@@ -27,7 +32,7 @@ exports.handler = async (event) => {
       minAge, 
       maxAge, 
       interests = [] 
-    } = event.queryStringParameters
+    } = event.queryStringParameters || {}
 
     if (!currentUserId) {
       return {
@@ -37,70 +42,47 @@ exports.handler = async (event) => {
       }
     }
 
+    const pool = await getConnection()
+
     // Базовый запрос: пользователи, записанные на то же мероприятие
-    let query = supabase
-      .from('users')
-      .select(`
-        id,
-        name,
-        email,
-        avatar_url,
-        age,
-        gender,
-        bio,
-        interests,
-        event_participants!inner (
-          event_id
-        )
-      `)
-      .neq('id', currentUserId)
-      .not('event_participants.event_id', 'is', null)
+    let query = `
+      SELECT DISTINCT u.id, u.name, u.email, u.avatar_url
+      FROM users u
+      INNER JOIN event_participants ep ON u.id = ep.user_id
+      WHERE u.id != $1
+    `
+    const params = [currentUserId]
+    let paramIndex = 2
 
     // Фильтр по мероприятию
     if (eventId) {
-      query = query.eq('event_participants.event_id', eventId)
-    }
-
-    // Фильтр по полу
-    if (gender && gender !== 'Любой') {
-      query = query.eq('gender', gender === 'Мужской' ? 'male' : 'female')
-    }
-
-    // Фильтр по возрасту
-    if (minAge) {
-      query = query.gte('age', parseInt(minAge))
-    }
-    if (maxAge) {
-      query = query.lte('age', parseInt(maxAge))
-    }
-
-    // Фильтр по интересам (если у вас есть поле interests в users)
-    if (interests.length > 0 && typeof interests === 'string') {
-      const interestArray = interests.split(',')
-      interestArray.forEach(interest => {
-        query = query.ilike('interests', `%${interest}%`)
-      })
+      query += ` AND ep.event_id = $${paramIndex}`
+      params.push(eventId)
+      paramIndex++
     }
 
     // Исключаем уже свайпнутых пользователей
-    const { data: swipes } = await supabase
-      .from('swipes')
-      .select('target_id')
-      .eq('swiper_id', currentUserId)
+    const swipesResult = await pool.query(
+      'SELECT target_id FROM swipes WHERE swiper_id = $1',
+      [currentUserId]
+    )
     
-    if (swipes && swipes.length > 0) {
-      const swipedIds = swipes.map(s => s.target_id)
-      query = query.not('id', 'in', `(${swipedIds.join(',')})`)
+    if (swipesResult.rows.length > 0) {
+      const swipedIds = swipesResult.rows.map(s => s.target_id)
+      query += ` AND u.id NOT IN (${swipedIds.map((_, i) => `$${paramIndex + i}`).join(', ')})`
+      params.push(...swipedIds)
+      paramIndex += swipedIds.length
     }
 
-    const { data: profiles, error } = await query.limit(50)
+    query += ' LIMIT 50'
 
-    if (error) throw error
+    const result = await pool.query(query, params)
+    await pool.end()
 
     return {
       statusCode: 200,
       headers,
-      body: JSON.stringify({ profiles })
+      body: JSON.stringify({ profiles: result.rows })
     }
 
   } catch (error) {
