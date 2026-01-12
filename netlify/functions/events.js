@@ -1,6 +1,9 @@
+import pg from 'pg'
+
+const { Pool } = pg
+
 // Утилита для подключения к базе данных
 async function getConnection() {
-  const { Pool } = require('pg')
   return new Pool({
     connectionString: process.env.NETLIFY_DATABASE_URL,
     ssl: { rejectUnauthorized: false }
@@ -9,10 +12,10 @@ async function getConnection() {
 
 // GET /api/events - получение всех мероприятий
 // POST /api/events - создание нового мероприятия
-exports.handler = async (event, context) => {
+export const handler = async (event, context) => {
   const headers = {
     'Access-Control-Allow-Origin': '*',
-    'Access-Co--ntrol-Allow-Headers': 'Content-Type',
+    'Access-Control-Allow-Headers': 'Content-Type',
     'Content-Type': 'application/json'
   }
 
