@@ -1,7 +1,7 @@
 type Filters = {
 	gender: string
 	ageRange: [number, number]
-	interests: string[]
+	interests: string[]  // Это массив строк!
 }
 
 type Props = {

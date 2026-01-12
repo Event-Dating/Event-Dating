@@ -12,7 +12,7 @@ async function getConnection() {
 exports.handler = async (event, context) => {
   const headers = {
     'Access-Control-Allow-Origin': '*',
-    'Access-Control-Allow-Headers': 'Content-Type',
+    'Access-Co--ntrol-Allow-Headers': 'Content-Type',
     'Content-Type': 'application/json'
   }
 
