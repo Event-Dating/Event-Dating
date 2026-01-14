@@ -4,6 +4,7 @@ import { AuthProvider } from './context/AuthContext'
 import { EventsProvider } from './context/EventsContext'
 import AppLayout from './layout/AppLayout'
 import AdminUsersPage from './pages/AdminUsersPage'
+import ChatPage from './pages/ChatPage'
 import ChatsPage from './pages/ChatsPage'
 import CreateEventPage from './pages/CreateEventPage'
 import EventDetailPage from './pages/EventDetailPage'
@@ -22,6 +23,7 @@ function App() {
 							<Route path='/' element={<HomePage />} />
 							<Route path='/profile' element={<ProfilePage />} />
 							<Route path='/chats' element={<ChatsPage />} />
+							<Route path='/chats/:chat_id' element={<ChatPage />} />
 							<Route path='/create' element={<CreateEventPage />} />
 							<Route path='/my-events' element={<MyEventsPage />} />
 							<Route path='/events/:id' element={<EventDetailPage />} />

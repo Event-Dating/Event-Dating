@@ -2,6 +2,15 @@
 	padding-bottom: 40px;
 }
 
+.adminSection {
+	margin-bottom: 40px;
+}
+
+.adminSection .h2 {
+	margin-bottom: 16px;
+	font-size: 20px;
+}
+
 .adminTableContainer {
 	background: #ffffff;
 	border-radius: var(--radius-lg);

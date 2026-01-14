@@ -84,6 +84,22 @@ export interface ChatItem {
 	chat_created_at: string
 }
 
+export interface Message {
+	id: string
+	chat_id: string
+	sender_id: string
+	content: string
+	created_at: string
+}
+
+export interface AdminChatInfo {
+	chat_id: string
+	user1_name: string
+	user2_name: string
+	event_title?: string
+	created_at: string
+}
+
 export interface ParticipantStatus {
 	isParticipant: boolean
 	joinedAt?: string
@@ -319,6 +335,51 @@ export class ChatsAPI {
 
 		if (!response.ok) {
 			throw new Error('Failed to fetch chats')
+		}
+
+		const data = await response.json()
+		return data.chats
+	}
+
+	static async getMessages(chatId: string): Promise<Message[]> {
+		const response = await fetch(
+			`${API_BASE_URL}/get-messages?chatId=${chatId}`
+		)
+
+		if (!response.ok) {
+			throw new Error('Failed to fetch messages')
+		}
+
+		const data = await response.json()
+		return data.messages
+	}
+
+	static async sendMessage(
+		chatId: string,
+		senderId: string,
+		content: string
+	): Promise<Message> {
+		const response = await fetch(`${API_BASE_URL}/send-message`, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+			},
+			body: JSON.stringify({ chatId, senderId, content }),
+		})
+
+		if (!response.ok) {
+			const error = await response.json()
+			throw new Error(error.error || 'Failed to send message')
+		}
+
+		return response.json()
+	}
+
+	static async getAllAdminChats(): Promise<AdminChatInfo[]> {
+		const response = await fetch(`${API_BASE_URL}/get-all-chats`)
+
+		if (!response.ok) {
+			throw new Error('Failed to fetch all chats')
 		}
 
 		const data = await response.json()
