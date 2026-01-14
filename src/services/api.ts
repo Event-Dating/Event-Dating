@@ -184,6 +184,17 @@ export class UsersAPI {
 		const data = await response.json()
 		return data.users
 	}
+
+	static async deleteUser(userId: string): Promise<void> {
+		const response = await fetch(`${API_BASE_URL}/delete-user?id=${userId}`, {
+			method: 'DELETE',
+		})
+
+		if (!response.ok) {
+			const error = await response.json()
+			throw new Error(error.error || 'Failed to delete user')
+		}
+	}
 }
 
 // API класс для работы с мероприятиями

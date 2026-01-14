@@ -59,19 +59,12 @@ class UsersService {
 	}
 
 	// Временные заглушки для остальных методов
-	updateUser(
-		_id: string,
-		_updates: Partial<Pick<User, 'name' | 'email' | 'avatar'>>
-	): User | null {
+	updateUser(): User | null {
 		console.log('updateUser not implemented with API yet')
 		return null
 	}
 
-	updatePassword(
-		_id: string,
-		_oldPassword: string,
-		_newPassword: string
-	): boolean {
+	updatePassword(): boolean {
 		console.log('updatePassword not implemented with API yet')
 		return false
 	}
