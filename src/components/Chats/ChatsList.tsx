@@ -1,3 +1,4 @@
+import { useNavigate } from 'react-router-dom'
 import type { ChatItem as ChatItemType } from '../../services/api'
 
 export type ChatItem = ChatItemType
@@ -7,6 +8,8 @@ type Props = {
 }
 
 function ChatsList({ chats }: Props) {
+	const navigate = useNavigate()
+
 	if (chats.length === 0) {
 		return (
 			<div className='empty empty--center'>
@@ -21,7 +24,18 @@ function ChatsList({ chats }: Props) {
 	return (
 		<div className='list'>
 			{chats.map(chat => (
-				<div key={chat.chat_id} className='chatRow' role='button' tabIndex={0}>
+				<div
+					key={chat.chat_id}
+					className='chatRow'
+					role='button'
+					tabIndex={0}
+					onClick={() => navigate(`/chats/${chat.chat_id}`)}
+					onKeyDown={e => {
+						if (e.key === 'Enter' || e.key === ' ') {
+							navigate(`/chats/${chat.chat_id}`)
+						}
+					}}
+				>
 					<div className='avatar' aria-hidden='true'>
 						{chat.partner_avatar ? (
 							<img src={chat.partner_avatar} alt={chat.partner_name} />

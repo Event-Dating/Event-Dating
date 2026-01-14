@@ -432,6 +432,7 @@
 }
 
 .buttonRow {
+	margin-top: 10px;
 	display: flex;
 	gap: 10px;
 	flex-wrap: wrap;
@@ -581,7 +582,7 @@
 	flex-direction: column;
 	gap: 20px;
 	max-width: 800px;
-	margin: 0 auto;
+	margin: 10px auto;
 }
 
 .eventDetail__cover {

@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useAuth } from '../../context/AuthContext'
 import { UsersAPI } from '../../services/api'
 import './ProfileSurveyModal.css'
@@ -28,12 +28,25 @@ function ProfileSurveyModal({
 	const { user, updateUser } = useAuth()
 
 	const [formData, setFormData] = useState({
-		name: user?.name || '',
-		age: user?.age || '',
-		gender: user?.gender || '',
-		bio: user?.bio || '',
-		interests: user?.interests || [],
+		name: '',
+		age: '',
+		gender: '',
+		bio: '',
+		interests: [] as string[],
 	})
+
+	// Синхронизируем данные при открытии модалки
+	useEffect(() => {
+		if (isOpen && user) {
+			setFormData({
+				name: user.name || '',
+				age: user.age ? user.age.toString() : '',
+				gender: user.gender || '',
+				bio: user.bio || '',
+				interests: user.interests || [],
+			})
+		}
+	}, [isOpen, user])
 
 	const [errors, setErrors] = useState<{
 		name?: string

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import ChatsList, { type ChatItem } from '../components/Chats/ChatsList'
 import { useAuth } from '../context/AuthContext'
@@ -10,16 +10,7 @@ function ChatsPage() {
 	const [chats, setChats] = useState<ChatItem[]>([])
 	const [isLoading, setIsLoading] = useState(true)
 
-	useEffect(() => {
-		if (!user) {
-			navigate('/')
-			return
-		}
-
-		loadChats()
-	}, [user, navigate])
-
-	const loadChats = async () => {
+	const loadChats = useCallback(async () => {
 		if (!user) return
 
 		try {
@@ -31,7 +22,16 @@ function ChatsPage() {
 		} finally {
 			setIsLoading(false)
 		}
-	}
+	}, [user])
+
+	useEffect(() => {
+		if (!user) {
+			navigate('/')
+			return
+		}
+
+		loadChats()
+	}, [user, navigate, loadChats])
 
 	if (!user) {
 		return null // Будет редирект на главную через useEffect
@@ -39,8 +39,8 @@ function ChatsPage() {
 
 	return (
 		<div className='container'>
-			<div className='pageHeader'>
-				<h1 className='h1'>Чаты</h1>
+			<div className='pageHeader chatsPage__header'>
+				<h1 className='h1'>Ваши сообщения</h1>
 			</div>
 
 			{isLoading ? (

@@ -44,12 +44,14 @@ export const handler = async event => {
 
 		const pool = await getConnection()
 
-		// Базовый запрос: пользователи, записанные на то же мероприятие
-		let query = `
+		// Исключаем уже свайпнутых пользователей через LEFT JOIN
+		query = `
       SELECT DISTINCT u.id, u.name, u.email, u.avatar_url, u.age, u.gender, u.bio, u.interests
       FROM users u
       INNER JOIN event_participants ep ON u.id = ep.user_id
+      LEFT JOIN swipes s ON (s.target_id = u.id AND s.swiper_id = $1)
       WHERE u.id != $1
+      AND s.id IS NULL
     `
 		const params = [currentUserId]
 		let paramIndex = 2
@@ -80,21 +82,6 @@ export const handler = async event => {
 			query += ` AND u.age <= $${paramIndex}`
 			params.push(parseInt(maxAge))
 			paramIndex++
-		}
-
-		// Исключаем уже свайпнутых пользователей
-		const swipesResult = await pool.query(
-			'SELECT target_id FROM swipes WHERE swiper_id = $1',
-			[currentUserId]
-		)
-
-		if (swipesResult.rows.length > 0) {
-			const swipedIds = swipesResult.rows.map(s => s.target_id)
-			query += ` AND u.id NOT IN (${swipedIds
-				.map((_, i) => `$${paramIndex + i}`)
-				.join(', ')})`
-			params.push(...swipedIds)
-			paramIndex += swipedIds.length
 		}
 
 		query += ' LIMIT 50'

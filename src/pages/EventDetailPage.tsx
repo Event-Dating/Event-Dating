@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import editIcon from '../assets/edit-icon.svg'
 import EventParticipationButton from '../components/Events/EventParticipationButton'
+import RequireSurveyModal from '../components/UI/RequireSurveyModal'
 import { useAuth } from '../context/AuthContext'
 import { useEvents } from '../context/EventsContext'
 import type { EventCategory, EventCoverVariant } from '../types/event'
@@ -46,6 +47,7 @@ function EventDetailPage() {
 		event?.categories || ([event?.category].filter(Boolean) as EventCategory[])
 	)
 	const [showTagInput, setShowTagInput] = useState(false)
+	const [showRequireSurvey, setShowRequireSurvey] = useState(false)
 
 	const isProfileComplete = Boolean(
 		user?.age && user?.gender && user?.interests && user.interests.length > 0
@@ -148,8 +150,7 @@ function EventDetailPage() {
 	}
 
 	const handleRequireSurvey = () => {
-		alert('Заполните возраст, пол и увлечения в профиле, чтобы записаться.')
-		navigate('/profile')
+		setShowRequireSurvey(true)
 	}
 
 	const handleParticipationChange = (status: { isParticipant: boolean }) => {
@@ -611,6 +612,12 @@ function EventDetailPage() {
 					)}
 				</div>
 			</div>
+
+			<RequireSurveyModal
+				isOpen={showRequireSurvey}
+				onClose={() => setShowRequireSurvey(false)}
+				onConfirm={() => navigate('/profile')}
+			/>
 		</div>
 	)
 }

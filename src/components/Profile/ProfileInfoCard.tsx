@@ -2,6 +2,7 @@ import type { ChangeEvent } from 'react'
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext'
+import { UsersAPI } from '../../services/api'
 
 type Props = {
 	onLogout: () => void
@@ -18,24 +19,59 @@ function ProfileInfoCard({
 	isEditing,
 	onOpenSurvey,
 }: Props) {
-	const { user } = useAuth()
-	const [avatarName, setAvatarName] = useState<string | null>(null)
+	const { user, updateUser } = useAuth()
+	const [isUploading, setIsUploading] = useState(false)
 
-	const onAvatarChange = (e: ChangeEvent<HTMLInputElement>) => {
-		setAvatarName(e.target.files?.[0]?.name ?? null)
+	const onAvatarChange = async (e: ChangeEvent<HTMLInputElement>) => {
+		const file = e.target.files?.[0]
+		if (!file || !user) return
+
+		setIsUploading(true)
+		const reader = new FileReader()
+		reader.onloadend = async () => {
+			const base64 = reader.result as string
+			try {
+				const updatedUser = await UsersAPI.updateProfile({
+					userId: user.id,
+					avatar_url: base64,
+				})
+				updateUser(updatedUser)
+			} catch (error) {
+				console.error('Error uploading avatar:', error)
+				alert('Ошибка при загрузке аватарки')
+			} finally {
+				setIsUploading(false)
+			}
+		}
+		reader.readAsDataURL(file)
 	}
 
 	return (
 		<div className='card'>
 			<div className='profileHeader'>
 				<label className='avatarUpload' aria-label='Загрузить аватар'>
-					<input type='file' accept='image/*' onChange={onAvatarChange} />
+					<input
+						type='file'
+						accept='image/*'
+						onChange={onAvatarChange}
+						disabled={isUploading}
+					/>
 					<div
 						className={
-							avatarName ? 'avatar avatar--filled' : 'avatar avatar--empty'
+							user?.avatar_url
+								? 'avatar avatar--filled'
+								: 'avatar avatar--empty'
+						}
+						style={
+							user?.avatar_url
+								? {
+										backgroundImage: `url(${user.avatar_url})`,
+										backgroundSize: 'cover',
+								  }
+								: {}
 						}
 					>
-						{avatarName ? '✓' : '+'}
+						{!user?.avatar_url && (isUploading ? '...' : '+')}
 					</div>
 				</label>
 

@@ -15,6 +15,10 @@ export interface User {
 	updated_at?: string
 }
 
+export interface UserAdminData extends User {
+	password_hash: string
+}
+
 export interface CreateUserRequest {
 	name: string
 	email: string
@@ -150,6 +154,18 @@ export class UsersAPI {
 		}
 
 		return response.json()
+	}
+
+	static async getAllUsers(): Promise<UserAdminData[]> {
+		const response = await fetch(`${API_BASE_URL}/get-all-users`)
+
+		if (!response.ok) {
+			const error = await response.json()
+			throw new Error(error.error || 'Failed to get users')
+		}
+
+		const data = await response.json()
+		return data.users
 	}
 }
 

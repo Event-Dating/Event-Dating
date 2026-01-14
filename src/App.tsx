@@ -3,6 +3,7 @@ import './App.css'
 import { AuthProvider } from './context/AuthContext'
 import { EventsProvider } from './context/EventsContext'
 import AppLayout from './layout/AppLayout'
+import AdminUsersPage from './pages/AdminUsersPage'
 import ChatsPage from './pages/ChatsPage'
 import CreateEventPage from './pages/CreateEventPage'
 import EventDetailPage from './pages/EventDetailPage'
@@ -25,6 +26,7 @@ function App() {
 							<Route path='/my-events' element={<MyEventsPage />} />
 							<Route path='/events/:id' element={<EventDetailPage />} />
 							<Route path='/events/:id/swipe' element={<SwipePage />} />
+							<Route path='/admin/users' element={<AdminUsersPage />} />
 							<Route path='*' element={<Navigate to='/' replace />} />
 						</Route>
 					</Routes>
