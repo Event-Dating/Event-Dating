@@ -6,7 +6,6 @@ import ChatsList from '../components/Chats/ChatsList'
 import { useAuth } from '../context/AuthContext'
 import { ChatsAPI, type ChatItem, type Message } from '../services/api'
 import './ChatPage.css'
-import './ChatsPage.css'
 
 function ChatPage() {
 	const { chat_id } = useParams<{ chat_id: string }>()
