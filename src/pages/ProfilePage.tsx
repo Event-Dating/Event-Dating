@@ -44,13 +44,15 @@ function ProfilePage() {
 			</div>
 
 			<div className='profileGrid'>
-				<ProfileInfoCard
-					onLogout={onLogout}
-					onDelete={onDelete}
-					onEditProfile={onEditProfile}
-					isEditing={isEditing}
-					onOpenSurvey={() => setShowSurveyModal(true)}
-				/>
+				<div className='contentSection'>
+					<ProfileInfoCard
+						onLogout={onLogout}
+						onDelete={onDelete}
+						onEditProfile={onEditProfile}
+						isEditing={isEditing}
+						onOpenSurvey={() => setShowSurveyModal(true)}
+					/>
+				</div>
 				{isEditing && (
 					<>
 						<NameChangeCard onSaved={onProfileUpdated} />

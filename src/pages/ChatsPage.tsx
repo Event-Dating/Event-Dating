@@ -53,7 +53,12 @@ function ChatsPage() {
 					</p>
 				</div>
 			) : (
-				<ChatsList chats={chats} />
+				<div
+					className='contentSection'
+					style={{ padding: 0, overflow: 'hidden' }}
+				>
+					<ChatsList chats={chats} />
+				</div>
 			)}
 		</div>
 	)

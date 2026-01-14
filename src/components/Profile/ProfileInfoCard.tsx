@@ -47,7 +47,7 @@ function ProfileInfoCard({
 	}
 
 	return (
-		<div className='card'>
+		<div>
 			<div className='profileHeader'>
 				<label className='avatarUpload' aria-label='Загрузить аватар'>
 					<input
