@@ -3,6 +3,7 @@ import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext'
 import { UsersAPI } from '../../services/api'
+import { compressImage } from '../../utils/image'
 
 type Props = {
 	onLogout: () => void
@@ -31,9 +32,12 @@ function ProfileInfoCard({
 		reader.onloadend = async () => {
 			const base64 = reader.result as string
 			try {
+				// Сжимаем изображение перед отправкой
+				const compressed = await compressImage(base64)
+
 				const updatedUser = await UsersAPI.updateProfile({
 					userId: user.id,
-					avatar_url: base64,
+					avatar_url: compressed,
 				})
 				updateUser(updatedUser)
 			} catch (error) {

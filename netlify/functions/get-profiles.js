@@ -46,7 +46,7 @@ export const handler = async event => {
 
 		// Исключаем уже свайпнутых пользователей через LEFT JOIN
 		let query = `
-      SELECT DISTINCT u.id, u.name, u.email, u.avatar_url, u.age, u.gender, u.bio, u.interests
+      SELECT DISTINCT u.id, u.name, u.email, u.age, u.gender, u.bio, u.interests
       FROM users u
       INNER JOIN event_participants ep ON u.id = ep.user_id
       LEFT JOIN swipes s ON (s.target_id = u.id AND s.swiper_id = $1)

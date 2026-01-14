@@ -10,7 +10,7 @@ import SwipeCard, { type SwipeProfile } from '../components/Swipe/SwipeCard'
 import SwipeFilters from '../components/Swipe/SwipeFilters'
 import { useAuth } from '../context/AuthContext'
 import { useEvents } from '../context/EventsContext'
-import { ProfilesAPI, SwipesAPI } from '../services/api'
+import { ProfilesAPI, SwipesAPI, UsersAPI } from '../services/api'
 import './SwipePage.css'
 
 function SwipePage() {
@@ -112,6 +112,27 @@ function SwipePage() {
 			setCurrentIndex(prev => prev + 1)
 		}, 200)
 	}
+
+	// Ленивая подгрузка фото для текущего профиля
+	useEffect(() => {
+		if (currentProfile && !currentProfile.avatarUrl) {
+			const fetchFullProfile = async () => {
+				try {
+					const fullData = await UsersAPI.getUser(currentProfile.id)
+					setProfiles(prev =>
+						prev.map(p =>
+							p.id === currentProfile.id
+								? { ...p, avatarUrl: fullData.avatar_url }
+								: p
+						)
+					)
+				} catch (err) {
+					console.error('Failed to load avatar:', err)
+				}
+			}
+			fetchFullProfile()
+		}
+	}, [currentProfile, currentIndex])
 
 	// Helper for buttons to trigger swipe (simulate manual swipe logic could be complex,
 	// here we just advance the index, but ideally we'd trigger the card animation)
