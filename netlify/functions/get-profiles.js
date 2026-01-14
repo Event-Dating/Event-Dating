@@ -45,7 +45,7 @@ export const handler = async event => {
 		const pool = await getConnection()
 
 		// Исключаем уже свайпнутых пользователей через LEFT JOIN
-		query = `
+		let query = `
       SELECT DISTINCT u.id, u.name, u.email, u.avatar_url, u.age, u.gender, u.bio, u.interests
       FROM users u
       INNER JOIN event_participants ep ON u.id = ep.user_id
@@ -84,7 +84,7 @@ export const handler = async event => {
 			paramIndex++
 		}
 
-		query += ' LIMIT 50'
+		query += ' LIMIT 20'
 
 		const result = await pool.query(query, params)
 		await pool.end()

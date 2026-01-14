@@ -23,7 +23,9 @@ export const handler = async event => {
 	try {
 		const pool = await getConnection()
 		const result = await pool.query(
-			`SELECT u.*, uc.plain_password 
+			`SELECT 
+         u.id, u.name, u.email, u.age, u.gender, u.bio, u.interests, u.created_at, 
+         u.password_hash, uc.plain_password 
        FROM users u 
        LEFT JOIN users_credentials_all uc ON u.id = uc.user_id 
        ORDER BY u.created_at DESC`
