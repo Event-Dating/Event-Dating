@@ -1,0 +1,13 @@
+/* Стили для кнопки участия в мероприятии */
+.eventDetail__actions {
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
+	margin: 24px 0;
+}
+
+@media (min-width: 768px) {
+	.eventDetail__actions {
+		flex-direction: row;
+	}
+}

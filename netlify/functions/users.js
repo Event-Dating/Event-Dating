@@ -31,7 +31,8 @@ exports.handler = async (event, context) => {
 		}
 
 		const body = JSON.parse(event.body || '{}')
-		const { name, email, password, avatar_url } = body
+		const { name, email, password, avatar_url, age, gender, bio, interests } =
+			body
 
 		if (!name || !email || !password) {
 			return {
@@ -60,12 +61,21 @@ exports.handler = async (event, context) => {
 		// Хеширование пароля
 		const password_hash = await bcrypt.hash(password, 10)
 
-		// Создание пользователя
+		// Создание пользователя с дополнительными полями
 		const result = await pool.query(
-			`INSERT INTO users (name, email, password_hash, avatar_url) 
-       VALUES ($1, $2, $3, $4) 
-       RETURNING id, name, email, avatar_url, created_at`,
-			[name, email, password_hash, avatar_url]
+			`INSERT INTO users (name, email, password_hash, avatar_url, age, gender, bio, interests) 
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8) 
+       RETURNING id, name, email, avatar_url, age, gender, bio, interests, created_at`,
+			[
+				name,
+				email,
+				password_hash,
+				avatar_url || null,
+				age || null,
+				gender || null,
+				bio || null,
+				interests ? JSON.stringify(interests) : null,
+			]
 		)
 
 		await pool.end()
@@ -80,6 +90,10 @@ exports.handler = async (event, context) => {
 				name: user.name,
 				email: user.email,
 				avatar_url: user.avatar_url,
+				age: user.age,
+				gender: user.gender,
+				bio: user.bio,
+				interests: user.interests,
 				created_at: user.created_at,
 			}),
 		}
