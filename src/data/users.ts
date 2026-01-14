@@ -59,17 +59,24 @@ class UsersService {
 	}
 
 	// Временные заглушки для остальных методов
-	updateUser(): User | null {
+	updateUser(
+		_id: string,
+		_updates: Partial<Pick<User, 'name' | 'email' | 'avatar'>>
+	): User | null {
 		console.log('updateUser not implemented with API yet')
 		return null
 	}
 
-	updatePassword(): boolean {
+	updatePassword(
+		_id: string,
+		_oldPassword: string,
+		_newPassword: string
+	): boolean {
 		console.log('updatePassword not implemented with API yet')
 		return false
 	}
 
-	deleteUser(): boolean {
+	deleteUser(_id: string): boolean {
 		console.log('deleteUser not implemented with API yet')
 		return false
 	}
@@ -87,10 +94,12 @@ class UsersService {
 
 	setCurrentUser(user: User | null): void {
 		if (user) {
-			// Исключаем тяжелые данные из localStorage, чтобы не превысить квоту 5МБ
-			const safeUser = { ...user }
-			delete safeUser.avatar
-			delete safeUser.avatar_url
+			// Оставляем только самый минимум полей во избежание QuotaExceededError
+			const safeUser = {
+				id: user.id,
+				name: user.name,
+				email: user.email,
+			}
 			localStorage.setItem(CURRENT_USER_KEY, JSON.stringify(safeUser))
 		} else {
 			localStorage.removeItem(CURRENT_USER_KEY)

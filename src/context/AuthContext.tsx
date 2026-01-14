@@ -34,10 +34,34 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 		// Инициализация тестового пользователя при первом запуске
 		usersService.initializeTestUser()
 
-		// Загрузка текущего пользователя
-		const currentUser = usersService.getCurrentUser()
-		setUser(currentUser)
-		setInitialized(true)
+		// Загрузка текущего пользователя из стораджа (только базовые данные)
+		const storedUser = usersService.getCurrentUser()
+		if (storedUser) {
+			setUser(storedUser)
+
+			// Исправленная логика: используем UsersAPI.getUser
+			const recoverSession = async () => {
+				try {
+					const { UsersAPI } = await import('../services/api')
+					const fullUser = await UsersAPI.getUser(storedUser.id)
+					setUser({
+						...fullUser,
+						createdAt: fullUser.created_at,
+						avatar: fullUser.avatar_url,
+						interests: Array.isArray(fullUser.interests)
+							? fullUser.interests
+							: [],
+					})
+				} catch (err) {
+					console.error('Failed to recover full session:', err)
+				} finally {
+					setInitialized(true)
+				}
+			}
+			recoverSession()
+		} else {
+			setInitialized(true)
+		}
 	}, [])
 
 	const value = useMemo<AuthContextValue>(() => {
