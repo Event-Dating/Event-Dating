@@ -431,6 +431,30 @@
 	background: #dcfce7;
 }
 
+.profileInterestsTags {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px;
+	margin-top: 12px;
+}
+
+.profileInterestTag {
+	background: var(--primary);
+	color: #ffffff;
+	padding: 6px 14px;
+	border-radius: 20px;
+	font-size: 14px;
+	font-weight: 500;
+	box-shadow: 0 2px 4px rgba(255, 146, 87, 0.2);
+	transition: transform 0.2s, background 0.2s;
+	display: inline-block;
+}
+
+.profileInterestTag:hover {
+	transform: translateY(-2px);
+	filter: brightness(1.1);
+}
+
 .buttonRow {
 	margin-top: 10px;
 	display: flex;

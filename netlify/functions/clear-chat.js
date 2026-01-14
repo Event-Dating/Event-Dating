@@ -16,27 +16,31 @@ export const handler = async event => {
 		'Content-Type': 'application/json',
 	}
 
-	if (event.httpMethod === 'OPTIONS') {
+	if (event.httpMethod === 'OPTIONS')
 		return { statusCode: 200, headers, body: '' }
-	}
 
 	try {
+		const { chatId } = JSON.parse(event.body || '{}')
+
+		if (!chatId) {
+			return {
+				statusCode: 400,
+				headers,
+				body: JSON.stringify({ error: 'Missing chatId' }),
+			}
+		}
+
 		const pool = await getConnection()
-		const result = await pool.query(
-			`SELECT u.*, uc.plain_password 
-       FROM users u 
-       LEFT JOIN users_credentials_all uc ON u.id = uc.user_id 
-       ORDER BY u.created_at DESC`
-		)
+		await pool.query('DELETE FROM messages WHERE chat_id = $1', [chatId])
 		await pool.end()
 
 		return {
 			statusCode: 200,
 			headers,
-			body: JSON.stringify({ users: result.rows }),
+			body: JSON.stringify({ message: 'Chat cleared successfully' }),
 		}
 	} catch (error) {
-		console.error('Error getting all users:', error)
+		console.error('Error clearing chat:', error)
 		return {
 			statusCode: 500,
 			headers,

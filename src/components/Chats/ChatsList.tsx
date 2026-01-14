@@ -1,5 +1,8 @@
+import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import type { ChatItem as ChatItemType } from '../../services/api'
+import { ChatsAPI, type ChatItem as ChatItemType } from '../../services/api'
+import './ChatActionsMenu.css'
+import './ChatsList.css'
 
 export type ChatItem = ChatItemType
 
@@ -9,6 +12,29 @@ type Props = {
 
 function ChatsList({ chats }: Props) {
 	const navigate = useNavigate()
+	const [activeMenu, setActiveMenu] = useState<string | null>(null)
+
+	const handleClear = async (chatId: string) => {
+		if (window.confirm('Очистить историю сообщений?')) {
+			try {
+				await ChatsAPI.clearChat(chatId)
+				window.location.reload() // Упрощенно для обновления
+			} catch (err) {
+				alert('Ошибка при очистке')
+			}
+		}
+	}
+
+	const handleDelete = async (chatId: string) => {
+		if (window.confirm('Полностью удалить чат?')) {
+			try {
+				await ChatsAPI.deleteChat(chatId)
+				window.location.reload()
+			} catch (err) {
+				alert('Ошибка при удалении')
+			}
+		}
+	}
 
 	if (chats.length === 0) {
 		return (
@@ -22,36 +48,72 @@ function ChatsList({ chats }: Props) {
 	}
 
 	return (
-		<div className='list'>
+		<div className='chatsList'>
 			{chats.map(chat => (
 				<div
 					key={chat.chat_id}
-					className='chatRow'
-					role='button'
-					tabIndex={0}
+					className='chatItem'
 					onClick={() => navigate(`/chats/${chat.chat_id}`)}
-					onKeyDown={e => {
-						if (e.key === 'Enter' || e.key === ' ') {
-							navigate(`/chats/${chat.chat_id}`)
-						}
-					}}
 				>
-					<div className='avatar' aria-hidden='true'>
+					<div className='chatItem__avatar'>
 						{chat.partner_avatar ? (
 							<img src={chat.partner_avatar} alt={chat.partner_name} />
 						) : (
-							chat.partner_name.charAt(0).toUpperCase()
+							<div className='chatItem__avatarPlaceholder'>
+								{chat.partner_name.charAt(0).toUpperCase()}
+							</div>
 						)}
 					</div>
-					<div className='chatRow__text'>
-						<div className='chatRow__name'>{chat.partner_name}</div>
-						<div className='chatRow__last'>
+					<div className='chatItem__content'>
+						<div className='chatItem__header'>
+							<span className='chatItem__name'>{chat.partner_name}</span>
+							<div
+								style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
+							>
+								<span className='chatItem__time'>
+									{chat.last_message_time
+										? new Date(chat.last_message_time).toLocaleTimeString([], {
+												hour: '2-digit',
+												minute: '2-digit',
+										  })
+										: ''}
+								</span>
+								<button
+									className='chatItem__more'
+									onClick={e => {
+										e.stopPropagation()
+										setActiveMenu(chat.chat_id)
+									}}
+								>
+									⋮
+								</button>
+							</div>
+						</div>
+						<div className='chatItem__last'>
 							{chat.last_message || 'Начните общение'}
 						</div>
 						{chat.event_title && (
-							<div className='chatRow__event'>{chat.event_title}</div>
+							<div className='chatItem__eventLabel'>{chat.event_title}</div>
 						)}
 					</div>
+
+					{activeMenu === chat.chat_id && (
+						<ChatActionsMenu
+							isOpen={true}
+							onClose={() => setActiveMenu(null)}
+							items={[
+								{
+									label: 'Очистить историю',
+									onClick: () => handleClear(chat.chat_id),
+								},
+								{
+									label: 'Удалить чат',
+									onClick: () => handleDelete(chat.chat_id),
+									variant: 'danger',
+								},
+							]}
+						/>
+					)}
 				</div>
 			))}
 		</div>

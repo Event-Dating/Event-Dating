@@ -28,6 +28,22 @@ export const handler = async event => {
 
 	try {
 		const pool = await getConnection()
+
+		// Получаем информацию о чате, чтобы проверить существование и участников (опционально)
+		const chatResult = await pool.query(
+			'SELECT * FROM chats WHERE chat_id = $1',
+			[chatId]
+		)
+
+		if (chatResult.rows.length === 0) {
+			await pool.end()
+			return {
+				statusCode: 404,
+				headers,
+				body: JSON.stringify({ error: 'Chat not found' }),
+			}
+		}
+
 		const result = await pool.query(
 			'SELECT * FROM messages WHERE chat_id = $1 ORDER BY created_at ASC',
 			[chatId]

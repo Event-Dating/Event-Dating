@@ -89,7 +89,6 @@ a:hover {
 	-webkit-tap-highlight-color: transparent;
 }
 
-/* Дополнительные правила для мобильных устройств */
 @media (max-width: 768px) {
 	* {
 		-webkit-tap-highlight-color: transparent !important;
@@ -99,5 +98,37 @@ a:hover {
 		-moz-user-select: none;
 		-ms-user-select: none;
 		user-select: none;
+	}
+}
+
+/* Page Titles */
+h1,
+.h1 {
+	font-size: 2.2rem;
+	font-weight: 800;
+	color: var(--text);
+	margin-bottom: 2rem;
+	letter-spacing: -0.02em;
+	position: relative;
+	display: inline-block;
+}
+
+h1::after,
+.h1::after {
+	content: '';
+	position: absolute;
+	left: 0;
+	bottom: -4px;
+	width: 50px;
+	height: 5px;
+	background: linear-gradient(90deg, var(--primary), transparent);
+	border-radius: 10px;
+}
+
+@media (max-width: 768px) {
+	h1,
+	.h1 {
+		font-size: 1.8rem;
+		margin-bottom: 1.5rem;
 	}
 }

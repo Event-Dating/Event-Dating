@@ -1,0 +1,58 @@
+.chatActionsMenu {
+	position: absolute;
+	top: 50px;
+	right: 10px;
+	background: #ffffff;
+	border: 1px solid var(--border);
+	border-radius: var(--radius-md);
+	box-shadow: var(--shadow-md);
+	z-index: 1000;
+	min-width: 180px;
+	padding: 4px 0;
+	display: flex;
+	flex-direction: column;
+}
+
+.chatActionsMenu__item {
+	padding: 10px 16px;
+	background: none;
+	border: none;
+	width: 100%;
+	text-align: left;
+	font-size: 14px;
+	cursor: pointer;
+	color: var(--text);
+	transition: background 0.2s;
+}
+
+.chatActionsMenu__item:hover {
+	background: #f0f2f5;
+}
+
+.chatActionsMenu__item--danger {
+	color: var(--danger);
+}
+
+.chatActionsMenu__item--danger:hover {
+	background: #fef2f2;
+}
+
+/* Для использования в списке чатов, позиционирование может отличаться */
+.chatItem {
+	position: relative;
+}
+
+.chatItem__more {
+	opacity: 0;
+	transition: opacity 0.2s;
+	background: none;
+	border: none;
+	font-size: 18px;
+	color: var(--muted);
+	cursor: pointer;
+	padding: 4px;
+}
+
+.chatItem:hover .chatItem__more {
+	opacity: 1;
+}

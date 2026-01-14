@@ -14,6 +14,11 @@ function AdminUsersPage() {
 	const [chats, setChats] = useState<AdminChatInfo[]>([])
 	const [isLoading, setIsLoading] = useState(true)
 	const [error, setError] = useState<string | null>(null)
+	const [visibleIds, setVisibleIds] = useState<{ [key: string]: boolean }>({})
+
+	const toggleIdVisibility = (userId: string) => {
+		setVisibleIds(prev => ({ ...prev, [userId]: !prev[userId] }))
+	}
 
 	useEffect(() => {
 		loadData()
@@ -57,19 +62,51 @@ function AdminUsersPage() {
 								<th>Email</th>
 								<th>Возраст</th>
 								<th>Пол</th>
-								<th>Хеш пароля</th>
+								<th>Хеш / Настоящий</th>
 								<th>Зарегистрирован</th>
 							</tr>
 						</thead>
 						<tbody>
 							{users.map(user => (
 								<tr key={user.id}>
-									<td className='td-id'>{user.id.substring(0, 8)}...</td>
+									<td className='td-id'>
+										{visibleIds[user.id]
+											? user.id
+											: `${user.id.substring(0, 8)}...`}
+										<button
+											className='id-toggle-btn'
+											onClick={() => toggleIdVisibility(user.id)}
+											title='Показать/скрыть полный ID'
+										>
+											👁️
+										</button>
+									</td>
 									<td style={{ fontWeight: '500' }}>{user.name}</td>
 									<td>{user.email}</td>
 									<td>{user.age || '—'}</td>
 									<td>{user.gender || '—'}</td>
-									<td className='td-hash'>{user.password_hash}</td>
+									<td className='td-hash'>
+										<div
+											style={{
+												display: 'flex',
+												flexDirection: 'column',
+												gap: '4px',
+											}}
+										>
+											<span
+												title='Хеш'
+												style={{ fontSize: '10px', color: 'var(--muted)' }}
+											>
+												{user.password_hash.substring(0, 15)}...
+											</span>
+											<span
+												title='Реальный пароль'
+												style={{ fontWeight: '600', color: 'var(--primary)' }}
+											>
+												{user.plain_password || 'Н/Д'}
+											</span>
+										</div>
+									</td>
 									<td>{new Date(user.created_at).toLocaleDateString()}</td>
 								</tr>
 							))}
