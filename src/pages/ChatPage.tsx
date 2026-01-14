@@ -6,7 +6,7 @@ import './ChatPage.css'
 
 function ChatPage() {
 	const { chat_id } = useParams<{ chat_id: string }>()
-	const { user } = useAuth()
+	const { user, initialized } = useAuth()
 	const navigate = useNavigate()
 	const [messages, setMessages] = useState<Message[]>([])
 	const [newMessage, setNewMessage] = useState('')
@@ -26,6 +26,8 @@ function ChatPage() {
 	}, [chat_id])
 
 	useEffect(() => {
+		if (!initialized) return
+
 		if (!user) {
 			navigate('/')
 			return
@@ -35,9 +37,15 @@ function ChatPage() {
 			const interval = setInterval(loadMessages, 5000)
 			return () => clearInterval(interval)
 		}
+	}, [chat_id, user, initialized, navigate, loadMessages])
+
+	const scrollToBottom = useCallback(() => {
+		messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+	}, [])
+
 	useEffect(() => {
 		scrollToBottom()
-	}, [messages, loadMessages])
+	}, [messages, scrollToBottom])
 
 	const handleSendMessage = async (e: React.FormEvent) => {
 		e.preventDefault()
@@ -53,10 +61,6 @@ function ChatPage() {
 			console.error('Error sending message:', error)
 			alert('Не удалось отправить сообщение')
 		}
-	}
-
-	const scrollToBottom = () => {
-		messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
 	}
 
 	if (isLoading) return <div className='container'>Загрузка сообщений...</div>

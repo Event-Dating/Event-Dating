@@ -8,9 +8,9 @@ import { useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import SwipeCard, { type SwipeProfile } from '../components/Swipe/SwipeCard'
 import SwipeFilters from '../components/Swipe/SwipeFilters'
-import { ProfilesAPI, SwipesAPI } from '../services/api'
-import { useEvents } from '../context/EventsContext'
 import { useAuth } from '../context/AuthContext'
+import { useEvents } from '../context/EventsContext'
+import { ProfilesAPI, SwipesAPI } from '../services/api'
 import './SwipePage.css'
 
 function SwipePage() {
@@ -73,9 +73,7 @@ function SwipePage() {
 					gender: profile.gender,
 					avatarUrl: profile.avatar_url,
 					bio: profile.bio,
-					interests: Array.isArray(profile.interests)
-						? profile.interests
-						: [],
+					interests: Array.isArray(profile.interests) ? profile.interests : [],
 				}))
 
 				setProfiles(mapped)
@@ -93,14 +91,7 @@ function SwipePage() {
 		}
 
 		loadProfiles()
-	}, [
-		user?.id,
-		id,
-		filters.gender,
-		filters.ageRange[0],
-		filters.ageRange[1],
-		filters.interests.join(','),
-	])
+	}, [user, id, filters.gender, filters.ageRange, filters.interests])
 
 	const handleSwipe = async (direction: 'left' | 'right') => {
 		if (!currentProfile || !user) return
@@ -249,12 +240,13 @@ function SwipePage() {
 								<button
 									className='button button--ghost'
 									onClick={() => {
+										setProfiles([])
+										setCurrentIndex(0)
 										setFilters({
 											gender: 'Любой',
 											ageRange: [18, 50],
 											interests: [],
 										})
-										setCurrentIndex(0)
 									}}
 								>
 									Сбросить фильтры

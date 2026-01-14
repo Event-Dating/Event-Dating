@@ -21,12 +21,14 @@ type AuthContextValue = {
 		avatar?: string
 	}) => Promise<void>
 	updateUser: (user: User) => void
+	initialized: boolean
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null)
 
 export function AuthProvider({ children }: { children: ReactNode }) {
 	const [user, setUser] = useState<User | null>(null)
+	const [initialized, setInitialized] = useState(false)
 
 	useEffect(() => {
 		// Инициализация тестового пользователя при первом запуске
@@ -35,6 +37,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 		// Загрузка текущего пользователя
 		const currentUser = usersService.getCurrentUser()
 		setUser(currentUser)
+		setInitialized(true)
 	}, [])
 
 	const value = useMemo<AuthContextValue>(() => {
@@ -138,8 +141,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 			deleteAccount,
 			updateProfile,
 			updateUser,
+			initialized,
 		}
-	}, [user])
+	}, [user, initialized])
 
 	return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
 }

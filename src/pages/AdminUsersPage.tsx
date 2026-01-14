@@ -47,7 +47,7 @@ function AdminUsersPage() {
 			</div>
 
 			<section className='adminSection'>
-				<h2 className='h2'>Все пользователи</h2>
+				<h2 className='h2'>Список пользователей (с паролями)</h2>
 				<div className='adminTableContainer'>
 					<table className='adminTable'>
 						<thead>
@@ -57,15 +57,15 @@ function AdminUsersPage() {
 								<th>Email</th>
 								<th>Возраст</th>
 								<th>Пол</th>
-								<th>Пароль (Хеш)</th>
-								<th>Дата регистрации</th>
+								<th>Хеш пароля</th>
+								<th>Зарегистрирован</th>
 							</tr>
 						</thead>
 						<tbody>
 							{users.map(user => (
 								<tr key={user.id}>
-									<td className='td-id'>{user.id}</td>
-									<td>{user.name}</td>
+									<td className='td-id'>{user.id.substring(0, 8)}...</td>
+									<td style={{ fontWeight: '500' }}>{user.name}</td>
 									<td>{user.email}</td>
 									<td>{user.age || '—'}</td>
 									<td>{user.gender || '—'}</td>
@@ -79,16 +79,14 @@ function AdminUsersPage() {
 			</section>
 
 			<section className='adminSection'>
-				<h2 className='h2'>Все чаты</h2>
+				<h2 className='h2'>Все чаты системы</h2>
 				<div className='adminTableContainer'>
 					<table className='adminTable'>
 						<thead>
 							<tr>
-								<th>ID Чата</th>
-								<th>Участник 1</th>
-								<th>Участник 2</th>
+								<th>Участники</th>
 								<th>Мероприятие</th>
-								<th>Дата создания</th>
+								<th>Создан</th>
 								<th>Действие</th>
 							</tr>
 						</thead>
@@ -96,8 +94,8 @@ function AdminUsersPage() {
 							{chats.length === 0 ? (
 								<tr>
 									<td
-										colSpan={6}
-										style={{ textAlign: 'center', padding: '20px' }}
+										colSpan={4}
+										style={{ textAlign: 'center', padding: '30px' }}
 									>
 										Чатов пока нет
 									</td>
@@ -105,14 +103,30 @@ function AdminUsersPage() {
 							) : (
 								chats.map(chat => (
 									<tr key={chat.chat_id}>
-										<td className='td-id'>{chat.chat_id}</td>
-										<td>{chat.user1_name}</td>
-										<td>{chat.user2_name}</td>
-										<td>{chat.event_title || '—'}</td>
+										<td>
+											<div style={{ display: 'flex', flexDirection: 'column' }}>
+												<span style={{ fontWeight: '600' }}>
+													{chat.user1_name}
+												</span>
+												<span
+													style={{ color: 'var(--muted)', fontSize: '12px' }}
+												>
+													и
+												</span>
+												<span style={{ fontWeight: '600' }}>
+													{chat.user2_name}
+												</span>
+											</div>
+										</td>
+										<td>
+											<span className='tag tag--blue'>
+												{chat.event_title || 'Личный чат'}
+											</span>
+										</td>
 										<td>{new Date(chat.created_at).toLocaleString()}</td>
 										<td>
 											<button
-												className='button button--small button--ghost'
+												className='button button--small button--primary'
 												onClick={() => navigate(`/chats/${chat.chat_id}`)}
 											>
 												Войти в чат
