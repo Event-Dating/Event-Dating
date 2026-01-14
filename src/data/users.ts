@@ -76,9 +76,14 @@ class UsersService {
 		return false
 	}
 
-	deleteUser(_id: string): boolean {
-		console.log('deleteUser not implemented with API yet')
-		return false
+	async deleteUser(id: string): Promise<boolean> {
+		try {
+			await UsersAPI.deleteUser(id)
+			return true
+		} catch (error) {
+			console.error('Failed to delete user:', error)
+			return false
+		}
 	}
 
 	getCurrentUser(): User | null {
