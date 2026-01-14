@@ -140,7 +140,7 @@ function ProfileSurveyModal({
 					{/* Имя */}
 					<div className='profileSurveyModal__field'>
 						<label className='profileSurveyModal__label'>
-							Ваше имя? <span className='profileSurveyModal__required'>*</span>
+							Ваше имя <span className='profileSurveyModal__required'>*</span>
 						</label>
 						<input
 							type='text'
@@ -162,7 +162,7 @@ function ProfileSurveyModal({
 					{/* Возраст */}
 					<div className='profileSurveyModal__field'>
 						<label className='profileSurveyModal__label'>
-							Ваш возраст?{' '}
+							Ваш возраст{' '}
 							<span className='profileSurveyModal__required'>*</span>
 						</label>
 						<input
@@ -187,7 +187,7 @@ function ProfileSurveyModal({
 					{/* Пол */}
 					<div className='profileSurveyModal__field'>
 						<label className='profileSurveyModal__label'>
-							Ваш пол? <span className='profileSurveyModal__required'>*</span>
+							Ваш пол <span className='profileSurveyModal__required'>*</span>
 						</label>
 						<div className='profileSurveyModal__genderOptions'>
 							<button

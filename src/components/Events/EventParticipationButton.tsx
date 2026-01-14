@@ -13,7 +13,7 @@ interface EventParticipationButtonProps {
 function EventParticipationButton({
 	eventId,
 	userId,
-	isProfileComplete = true,
+	isProfileComplete = false,
 	onRequireSurvey,
 	onStatusChange,
 }: EventParticipationButtonProps) {
