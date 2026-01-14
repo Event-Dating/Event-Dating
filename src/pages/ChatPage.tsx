@@ -118,7 +118,7 @@ function ChatPage() {
 					<h3 className='h3'>Сообщения</h3>
 				</div>
 				<div className='chatSidebar__list'>
-					<ChatsList chats={allChats} />
+					<ChatsList chats={allChats} activeChatId={chat_id} />
 				</div>
 			</aside>
 

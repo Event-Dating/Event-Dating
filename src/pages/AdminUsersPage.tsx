@@ -70,16 +70,32 @@ function AdminUsersPage() {
 							{users.map(user => (
 								<tr key={user.id}>
 									<td className='td-id'>
-										{visibleIds[user.id]
-											? user.id
-											: `${user.id.substring(0, 8)}...`}
-										<button
-											className='id-toggle-btn'
-											onClick={() => toggleIdVisibility(user.id)}
-											title='Показать/скрыть полный ID'
-										>
-											👁️
-										</button>
+										<div className='td-id__content'>
+											<span>
+												{visibleIds[user.id]
+													? user.id
+													: `${user.id.substring(0, 8)}...`}
+											</span>
+											<button
+												className='id-toggle-btn'
+												onClick={() => toggleIdVisibility(user.id)}
+												title='Показать/скрыть полный ID'
+											>
+												<svg
+													viewBox='0 0 24 24'
+													width='14'
+													height='14'
+													stroke='currentColor'
+													strokeWidth='2'
+													fill='none'
+													strokeLinecap='round'
+													strokeLinejoin='round'
+												>
+													<path d='M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z'></path>
+													<circle cx='12' cy='12' r='3'></circle>
+												</svg>
+											</button>
+										</div>
 									</td>
 									<td style={{ fontWeight: '500' }}>{user.name}</td>
 									<td>{user.email}</td>

@@ -38,28 +38,33 @@ function ChatsPage() {
 	}
 
 	return (
-		<div className='container'>
-			<div className='pageHeader chatsPage__header'>
-				<h1 className='h1'>Ваши сообщения</h1>
-			</div>
+		<div className='chatScreen'>
+			<aside className='chatSidebar'>
+				<div className='chatSidebar__header'>
+					<h3 className='h3'>Сообщения</h3>
+				</div>
+				<div className='chatSidebar__list'>
+					{isLoading ? (
+						<div className='loadingMessage'>Загрузка чатов...</div>
+					) : chats.length === 0 ? (
+						<div className='emptyMessage' style={{ padding: '20px' }}>
+							<p>У вас пока нет чатов</p>
+						</div>
+					) : (
+						<ChatsList chats={chats} />
+					)}
+				</div>
+			</aside>
 
-			{isLoading ? (
-				<div className='loadingMessage'>Загрузка чатов...</div>
-			) : chats.length === 0 ? (
-				<div className='emptyMessage'>
-					<p>У вас пока нет чатов</p>
-					<p className='emptyMessage__hint'>
-						Чаты появятся после взаимных лайков на мероприятиях
-					</p>
+			<main className='chatMain desktopOnly'>
+				<div className='chatMain__placeholder'>
+					<div className='chatMain__placeholderContent'>
+						<div className='chatMain__logo'>✉️</div>
+						<h3>Выберите чат</h3>
+						<p>Выберите собеседника из списка слева, чтобы начать общение</p>
+					</div>
 				</div>
-			) : (
-				<div
-					className='contentSection'
-					style={{ padding: 0, overflow: 'hidden' }}
-				>
-					<ChatsList chats={chats} />
-				</div>
-			)}
+			</main>
 		</div>
 	)
 }

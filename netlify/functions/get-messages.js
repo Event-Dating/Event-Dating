@@ -30,10 +30,9 @@ export const handler = async event => {
 		const pool = await getConnection()
 
 		// Получаем информацию о чате, чтобы проверить существование и участников (опционально)
-		const chatResult = await pool.query(
-			'SELECT * FROM chats WHERE chat_id = $1',
-			[chatId]
-		)
+		const chatResult = await pool.query('SELECT * FROM chats WHERE id = $1', [
+			chatId,
+		])
 
 		if (chatResult.rows.length === 0) {
 			await pool.end()

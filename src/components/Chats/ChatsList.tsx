@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import { ChatsAPI, type ChatItem as ChatItemType } from '../../services/api'
 import { ChatActionsMenu } from './ChatActionsMenu'
 import './ChatActionsMenu.css'
@@ -7,12 +7,12 @@ import './ChatsList.css'
 
 export type ChatItem = ChatItemType
 
-type Props = {
+interface Props {
 	chats: ChatItem[]
+	activeChatId?: string
 }
 
-function ChatsList({ chats }: Props) {
-	const navigate = useNavigate()
+export default function ChatsList({ chats, activeChatId }: Props) {
 	const [activeMenu, setActiveMenu] = useState<string | null>(null)
 
 	const handleClear = async (chatId: string) => {
@@ -51,52 +51,59 @@ function ChatsList({ chats }: Props) {
 	return (
 		<div className='chatsList'>
 			{chats.map(chat => (
-				<div
-					key={chat.chat_id}
-					className='chatItem'
-					onClick={() => navigate(`/chats/${chat.chat_id}`)}
-				>
-					<div className='chatItem__avatar'>
-						{chat.partner_avatar ? (
-							<img src={chat.partner_avatar} alt={chat.partner_name} />
-						) : (
-							<div className='chatItem__avatarPlaceholder'>
-								{chat.partner_name.charAt(0).toUpperCase()}
-							</div>
-						)}
-					</div>
-					<div className='chatItem__content'>
-						<div className='chatItem__header'>
-							<span className='chatItem__name'>{chat.partner_name}</span>
-							<div
-								style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
-							>
-								<span className='chatItem__time'>
-									{chat.last_message_time
-										? new Date(chat.last_message_time).toLocaleTimeString([], {
-												hour: '2-digit',
-												minute: '2-digit',
-										  })
-										: ''}
-								</span>
-								<button
-									className='chatItem__more'
-									onClick={e => {
-										e.stopPropagation()
-										setActiveMenu(chat.chat_id)
-									}}
+				<div key={chat.chat_id} className='chatItemWrapper'>
+					<Link
+						to={`/chats/${chat.chat_id}`}
+						className={`chatItem ${
+							activeChatId === chat.chat_id ? 'chatItem--active' : ''
+						}`}
+						onClick={() => setActiveMenu(null)}
+					>
+						<div className='chatItem__avatar'>
+							{chat.partner_avatar ? (
+								<img src={chat.partner_avatar} alt={chat.partner_name} />
+							) : (
+								<div className='chatItem__avatarPlaceholder'>
+									{chat.partner_name.charAt(0).toUpperCase()}
+								</div>
+							)}
+						</div>
+						<div className='chatItem__content'>
+							<div className='chatItem__header'>
+								<span className='chatItem__name'>{chat.partner_name}</span>
+								<div
+									style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
 								>
-									⋮
-								</button>
+									<span className='chatItem__time'>
+										{chat.last_message_time
+											? new Date(chat.last_message_time).toLocaleTimeString(
+													[],
+													{
+														hour: '2-digit',
+														minute: '2-digit',
+													}
+											  )
+											: ''}
+									</span>
+									<button
+										className='chatItem__more'
+										onClick={e => {
+											e.stopPropagation()
+											setActiveMenu(chat.chat_id)
+										}}
+									>
+										⋮
+									</button>
+								</div>
 							</div>
+							<div className='chatItem__last'>
+								{chat.last_message || 'Начните общение'}
+							</div>
+							{chat.event_title && (
+								<div className='chatItem__eventLabel'>{chat.event_title}</div>
+							)}
 						</div>
-						<div className='chatItem__last'>
-							{chat.last_message || 'Начните общение'}
-						</div>
-						{chat.event_title && (
-							<div className='chatItem__eventLabel'>{chat.event_title}</div>
-						)}
-					</div>
+					</Link>
 
 					{activeMenu === chat.chat_id && (
 						<ChatActionsMenu
@@ -120,5 +127,3 @@ function ChatsList({ chats }: Props) {
 		</div>
 	)
 }
-
-export default ChatsList
