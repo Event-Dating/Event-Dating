@@ -8,7 +8,7 @@ import ProfileSurveyModal from '../components/Profile/ProfileSurveyModal'
 import { useAuth } from '../context/AuthContext'
 
 function ProfilePage() {
-	const { logout, deleteAccount, user } = useAuth()
+	const { logout, deleteAccount } = useAuth()
 	const navigate = useNavigate()
 	const [isEditing, setIsEditing] = useState(false)
 	const [showSurveyModal, setShowSurveyModal] = useState(false)
@@ -36,10 +36,6 @@ function ProfilePage() {
 		setShowSurveyModal(false)
 		console.log('Анкета успешно заполнена')
 	}
-
-	// Проверяем, заполнена ли анкета
-	const isSurveyComplete =
-		user?.age && user?.gender && user?.interests && user.interests.length > 0
 
 	return (
 		<div className='container'>
