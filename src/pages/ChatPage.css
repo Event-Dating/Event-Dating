@@ -43,7 +43,7 @@
 	align-items: center;
 	padding: 0 20px;
 	justify-content: space-between;
-	z-index: 10;
+	z-index: 50; /* Достаточно высоко */
 }
 
 .chatHeader__info {
@@ -90,6 +90,10 @@
 
 .chatHeader__more:hover {
 	background: rgba(0, 0, 0, 0.05);
+}
+
+.chatHeader__actions {
+	position: relative;
 }
 
 .chatMessages {

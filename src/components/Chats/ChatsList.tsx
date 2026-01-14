@@ -10,16 +10,18 @@ export type ChatItem = ChatItemType
 interface Props {
 	chats: ChatItem[]
 	activeChatId?: string
+	onRefresh?: () => void
 }
 
-export default function ChatsList({ chats, activeChatId }: Props) {
+export default function ChatsList({ chats, activeChatId, onRefresh }: Props) {
 	const [activeMenu, setActiveMenu] = useState<string | null>(null)
 
 	const handleClear = async (chatId: string) => {
 		if (window.confirm('Очистить историю сообщений?')) {
 			try {
 				await ChatsAPI.clearChat(chatId)
-				window.location.reload() // Упрощенно для обновления
+				if (onRefresh) onRefresh()
+				setActiveMenu(null)
 			} catch {
 				alert('Ошибка при очистке')
 			}
@@ -30,7 +32,8 @@ export default function ChatsList({ chats, activeChatId }: Props) {
 		if (window.confirm('Полностью удалить чат?')) {
 			try {
 				await ChatsAPI.deleteChat(chatId)
-				window.location.reload()
+				if (onRefresh) onRefresh()
+				setActiveMenu(null)
 			} catch {
 				alert('Ошибка при удалении')
 			}
@@ -71,30 +74,14 @@ export default function ChatsList({ chats, activeChatId }: Props) {
 						<div className='chatItem__content'>
 							<div className='chatItem__header'>
 								<span className='chatItem__name'>{chat.partner_name}</span>
-								<div
-									style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
-								>
-									<span className='chatItem__time'>
-										{chat.last_message_time
-											? new Date(chat.last_message_time).toLocaleTimeString(
-													[],
-													{
-														hour: '2-digit',
-														minute: '2-digit',
-													}
-											  )
-											: ''}
-									</span>
-									<button
-										className='chatItem__more'
-										onClick={e => {
-											e.stopPropagation()
-											setActiveMenu(chat.chat_id)
-										}}
-									>
-										⋮
-									</button>
-								</div>
+								<span className='chatItem__time'>
+									{chat.last_message_time
+										? new Date(chat.last_message_time).toLocaleTimeString([], {
+												hour: '2-digit',
+												minute: '2-digit',
+										  })
+										: ''}
+								</span>
 							</div>
 							<div className='chatItem__last'>
 								{chat.last_message || 'Начните общение'}
@@ -104,6 +91,17 @@ export default function ChatsList({ chats, activeChatId }: Props) {
 							)}
 						</div>
 					</Link>
+
+					<button
+						className='chatItem__more'
+						onClick={e => {
+							e.preventDefault()
+							e.stopPropagation()
+							setActiveMenu(activeMenu === chat.chat_id ? null : chat.chat_id)
+						}}
+					>
+						⋮
+					</button>
 
 					{activeMenu === chat.chat_id && (
 						<ChatActionsMenu

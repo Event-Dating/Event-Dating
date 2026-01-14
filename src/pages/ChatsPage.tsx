@@ -51,7 +51,7 @@ function ChatsPage() {
 							<p>У вас пока нет чатов</p>
 						</div>
 					) : (
-						<ChatsList chats={chats} />
+						<ChatsList chats={chats} onRefresh={loadChats} />
 					)}
 				</div>
 			</aside>

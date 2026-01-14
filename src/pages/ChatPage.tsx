@@ -118,7 +118,14 @@ function ChatPage() {
 					<h3 className='h3'>Сообщения</h3>
 				</div>
 				<div className='chatSidebar__list'>
-					<ChatsList chats={allChats} activeChatId={chat_id} />
+					<ChatsList
+						chats={allChats}
+						activeChatId={chat_id}
+						onRefresh={async () => {
+							const chats = await ChatsAPI.getChats(user!.id)
+							setAllChats(chats)
+						}}
+					/>
 				</div>
 			</aside>
 
@@ -155,7 +162,7 @@ function ChatPage() {
 						<button
 							className='chatHeader__more'
 							title='Меню'
-							onClick={() => setShowMenu(true)}
+							onClick={() => setShowMenu(!showMenu)}
 						>
 							⋮
 						</button>

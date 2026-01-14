@@ -8,6 +8,10 @@
 	border: 1px solid var(--border);
 }
 
+.chatItemWrapper {
+	position: relative;
+}
+
 .chatItem {
 	display: flex;
 	align-items: center;
@@ -18,11 +22,6 @@
 	color: inherit;
 	transition: background 0.2s;
 	border-bottom: 1px solid var(--border);
-	position: relative; /* Чтобы выпадающее меню позиционировалось относительно карточки */
-}
-
-.chatItem:last-child {
-	border-bottom: none;
 }
 
 .chatItem:hover {
@@ -121,6 +120,36 @@
 	overflow: hidden;
 	text-overflow: ellipsis;
 	line-height: 1.2;
+}
+
+.chatItem__more {
+	position: absolute;
+	right: 12px;
+	top: 50%;
+	transform: translateY(-50%);
+	opacity: 0;
+	transition: opacity 0.2s;
+	background: none;
+	border: none;
+	font-size: 20px;
+	color: var(--muted);
+	cursor: pointer;
+	padding: 4px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	z-index: 5;
+}
+
+.chatItemWrapper:hover .chatItem__more {
+	opacity: 1;
+}
+
+@media (max-width: 960px) {
+	.chatItem__more {
+		opacity: 1 !important;
+		color: var(--primary);
+	}
 }
 
 .chatItem__eventLabel {
