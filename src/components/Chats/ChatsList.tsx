@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { ChatsAPI, type ChatItem as ChatItemType } from '../../services/api'
+import { ChatActionsMenu } from './ChatActionsMenu'
 import './ChatActionsMenu.css'
 import './ChatsList.css'
 
@@ -19,7 +20,7 @@ function ChatsList({ chats }: Props) {
 			try {
 				await ChatsAPI.clearChat(chatId)
 				window.location.reload() // Упрощенно для обновления
-			} catch (err) {
+			} catch {
 				alert('Ошибка при очистке')
 			}
 		}
@@ -30,7 +31,7 @@ function ChatsList({ chats }: Props) {
 			try {
 				await ChatsAPI.deleteChat(chatId)
 				window.location.reload()
-			} catch (err) {
+			} catch {
 				alert('Ошибка при удалении')
 			}
 		}

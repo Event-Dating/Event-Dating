@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
+import { ChatActionsMenu } from '../components/Chats/ChatActionsMenu'
 import '../components/Chats/ChatActionsMenu.css'
 import ChatsList from '../components/Chats/ChatsList'
 import { useAuth } from '../context/AuthContext'
@@ -47,8 +48,8 @@ function ChatPage() {
 					const current = chats.find(c => c.chat_id === chat_id)
 					if (current) setChatInfo(current)
 				}
-			} catch (err) {
-				console.error('Sidebar error:', err)
+			} catch {
+				// Ошибка сайдбара не критична
 			}
 		}
 
@@ -75,7 +76,7 @@ function ChatPage() {
 			try {
 				await ChatsAPI.clearChat(chat_id)
 				setMessages([])
-			} catch (err) {
+			} catch {
 				alert('Ошибка при очистке')
 			}
 		}
@@ -87,7 +88,7 @@ function ChatPage() {
 			try {
 				await ChatsAPI.deleteChat(chat_id)
 				navigate('/chats')
-			} catch (err) {
+			} catch {
 				alert('Ошибка при удалении')
 			}
 		}
