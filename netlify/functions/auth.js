@@ -47,7 +47,9 @@ export const handler = async (event, context) => {
 
 		// Поиск пользователя
 		const result = await pool.query(
-			'SELECT id, name, email, password_hash, avatar_url, created_at FROM users WHERE email = $1',
+			`SELECT id, name, email, password_hash, avatar_url, age, gender, bio, interests, created_at 
+       FROM users 
+       WHERE email = $1`,
 			[email]
 		)
 
@@ -85,6 +87,10 @@ export const handler = async (event, context) => {
 				name: user.name,
 				email: user.email,
 				avatar_url: user.avatar_url,
+				age: user.age,
+				gender: user.gender,
+				bio: user.bio,
+				interests: user.interests,
 				created_at: user.created_at,
 			}),
 		}

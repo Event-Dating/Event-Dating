@@ -1,20 +1,23 @@
 import { useState } from 'react'
-import { Link, useParams } from 'react-router-dom'
+import { Link, useNavigate, useParams } from 'react-router-dom'
 import editIcon from '../assets/edit-icon.svg'
 import EventParticipationButton from '../components/Events/EventParticipationButton'
 import { useAuth } from '../context/AuthContext'
 import { useEvents } from '../context/EventsContext'
-import { mockEvents } from '../data/mockEvents'
 import type { EventCategory, EventCoverVariant } from '../types/event'
 
 function EventDetailPage() {
 	const { id } = useParams<{ id: string }>()
+	const navigate = useNavigate()
 	const { events, updateEvent } = useEvents()
 	const { user } = useAuth()
 
 	// Ищем мероприятие по ID
-	const event =
-		events.find(e => e.id === id) || mockEvents.find(e => e.id === id)
+	const event = events.find(e => e.id === id)
+
+	const [participantsCount, setParticipantsCount] = useState(
+		event?.participantsCount ?? 0
+	)
 
 	// Состояния для редактирования
 	const [editingTitle, setEditingTitle] = useState(false)
@@ -43,6 +46,10 @@ function EventDetailPage() {
 		event?.categories || ([event?.category].filter(Boolean) as EventCategory[])
 	)
 	const [showTagInput, setShowTagInput] = useState(false)
+
+	const isProfileComplete = Boolean(
+		user?.age && user?.gender && user?.interests && user.interests.length > 0
+	)
 
 	if (!event) {
 		return (
@@ -138,6 +145,19 @@ function EventDetailPage() {
 		}).format(dt)
 
 		return `${date} в ${time}`
+	}
+
+	const handleRequireSurvey = () => {
+		alert('Заполните возраст, пол и увлечения в профиле, чтобы записаться.')
+		navigate('/profile')
+	}
+
+	const handleParticipationChange = (status: { isParticipant: boolean }) => {
+		setParticipantsCount(prev => {
+			const next = Math.max(0, prev + (status.isParticipant ? 1 : -1))
+			updateEvent(event.id, { participantsCount: next })
+			return next
+		})
 	}
 
 	return (
@@ -422,6 +442,13 @@ function EventDetailPage() {
 									<span className='eventDetail__date'>
 										{formatStartsAt(event.startsAt)}
 									</span>
+									<div
+										className='eventDetail__participantsBadge'
+										aria-label='Количество участников'
+									>
+										<span aria-hidden='true'>👥</span>
+										{participantsCount}
+									</div>
 									{user && user.email === event.author && (
 										<button
 											className='eventDetail__editButton'
@@ -508,7 +535,13 @@ function EventDetailPage() {
 				{user && (
 					<div className='eventDetail__actions'>
 						{/* Кнопка "Хочу пойти" / "Отменить запись" */}
-						<EventParticipationButton eventId={event.id} userId={user.id} />
+						<EventParticipationButton
+							eventId={event.id}
+							userId={user.id}
+							isProfileComplete={isProfileComplete}
+							onRequireSurvey={handleRequireSurvey}
+							onStatusChange={handleParticipationChange}
+						/>
 
 						{/* Кнопка "Найти компанию" - показываем для всех авторизованных пользователей */}
 						<Link
@@ -517,6 +550,13 @@ function EventDetailPage() {
 						>
 							Найти компанию
 						</Link>
+					</div>
+				)}
+
+				{user && !isProfileComplete && (
+					<div className='eventDetail__notice'>
+						Заполните анкету в профиле (возраст, пол, увлечения), чтобы
+						активировать запись на мероприятие.
 					</div>
 				)}
 

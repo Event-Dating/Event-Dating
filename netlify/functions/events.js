@@ -29,9 +29,18 @@ export const handler = async (event, context) => {
     if (event.httpMethod === 'GET') {
       // Получение всех мероприятий с информацией об авторах
       const result = await pool.query(`
-        SELECT e.*, u.name as author_name, u.email as author_email
+        SELECT 
+          e.*, 
+          u.name as author_name, 
+          u.email as author_email,
+          COALESCE(ep.count, 0) as participants_count
         FROM events e
         JOIN users u ON e.author_id = u.id
+        LEFT JOIN (
+          SELECT event_id, COUNT(*) as count
+          FROM event_participants
+          GROUP BY event_id
+        ) ep ON ep.event_id = e.id
         ORDER BY e.starts_at ASC
       `)
 
@@ -45,7 +54,8 @@ export const handler = async (event, context) => {
         coverVariant: row.cover_variant,
         description: row.description,
         author: row.author_email,
-        authorName: row.author_name
+        authorName: row.author_name,
+        participantsCount: Number(row.participants_count) || 0
       }))
 
       return {

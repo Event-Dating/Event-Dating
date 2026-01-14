@@ -5,11 +5,17 @@ import './EventParticipationButton.css'
 interface EventParticipationButtonProps {
 	eventId: string
 	userId: string
+	isProfileComplete?: boolean
+	onRequireSurvey?: () => void
+	onStatusChange?: (status: { isParticipant: boolean }) => void
 }
 
 function EventParticipationButton({
 	eventId,
 	userId,
+	isProfileComplete = true,
+	onRequireSurvey,
+	onStatusChange,
 }: EventParticipationButtonProps) {
 	const [isParticipant, setIsParticipant] = useState(false)
 	const [isLoading, setIsLoading] = useState(true)
@@ -35,15 +41,22 @@ function EventParticipationButton({
 	}
 
 	const handleToggleParticipation = async () => {
+		if (!isProfileComplete) {
+			onRequireSurvey?.()
+			return
+		}
+
 		setIsSubmitting(true)
 
 		try {
 			if (isParticipant) {
 				await EventParticipantsAPI.leaveEvent(eventId, userId)
 				setIsParticipant(false)
+				onStatusChange?.({ isParticipant: false })
 			} else {
 				await EventParticipantsAPI.joinEvent(eventId, userId)
 				setIsParticipant(true)
+				onStatusChange?.({ isParticipant: true })
 			}
 		} catch (error) {
 			console.error('Error toggling participation:', error)
@@ -72,7 +85,9 @@ function EventParticipationButton({
 			onClick={handleToggleParticipation}
 			disabled={isSubmitting}
 		>
-			{isSubmitting
+			{!isProfileComplete
+				? 'Заполните анкету'
+				: isSubmitting
 				? 'Загрузка...'
 				: isParticipant
 				? 'Отменить запись'

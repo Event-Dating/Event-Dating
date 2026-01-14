@@ -19,7 +19,11 @@ class UsersService {
       const user: User = {
         ...apiUser,
         createdAt: apiUser.created_at,
-        avatar: apiUser.avatar_url
+        avatar: apiUser.avatar_url,
+        interests: Array.isArray(apiUser.interests) ? apiUser.interests : [],
+        bio: apiUser.bio,
+        gender: apiUser.gender,
+        age: apiUser.age
       }
       
       this.setCurrentUser(user)
@@ -36,7 +40,11 @@ class UsersService {
       const user: User = {
         ...apiUser,
         createdAt: apiUser.created_at,
-        avatar: apiUser.avatar_url
+        avatar: apiUser.avatar_url,
+        interests: Array.isArray(apiUser.interests) ? apiUser.interests : [],
+        bio: apiUser.bio,
+        gender: apiUser.gender,
+        age: apiUser.age
       }
       
       this.setCurrentUser(user)

@@ -9,12 +9,11 @@ import {
 export type SwipeProfile = {
 	id: string
 	name: string
-	age: number
-	gender: string
-	photo: string
-	description: string
-	tags: string[]
-	joinedEvents: string[]
+	age?: number
+	gender?: string
+	avatarUrl?: string
+	bio?: string
+	interests?: string[]
 }
 
 type Props = {
@@ -60,21 +59,34 @@ function SwipeCard({ profile, onSwipe, dragX }: Props) {
 		>
 			<div
 				className='swipeCard__image'
-				style={{ backgroundImage: `url(${profile.photo})` }}
+				style={
+					profile.avatarUrl
+						? { backgroundImage: `url(${profile.avatarUrl})` }
+						: { background: 'linear-gradient(135deg, #dbeafe, #ffe4e6)' }
+				}
 			>
 				{/* Removed card overlay tint as requested */}
 				<div className='swipeCard__content'>
 					<div className='swipeCard__header'>
 						<h2 className='swipeCard__name'>
-							{profile.name}, {profile.age}
+							{profile.name}
+							{profile.age ? `, ${profile.age}` : ''}
 						</h2>
-						<span className='swipeCard__gender'>{profile.gender}</span>
+						{profile.gender && (
+							<span className='swipeCard__gender'>
+								{profile.gender === 'male'
+									? 'Мужчина'
+									: profile.gender === 'female'
+									? 'Женщина'
+									: profile.gender}
+							</span>
+						)}
 					</div>
 
-					<p className='swipeCard__description'>{profile.description}</p>
+					<p className='swipeCard__description'>{profile.bio || 'Без описания'}</p>
 
 					<div className='swipeCard__tags'>
-						{profile.tags.map((tag, index) => (
+						{(profile.interests || []).map((tag, index) => (
 							<span key={index} className='swipeCard__tag'>
 								{tag}
 							</span>

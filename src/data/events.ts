@@ -19,7 +19,8 @@ class EventsService {
         startsAt: event.startsAt,
         coverVariant: event.coverVariant as EventCoverVariant,
         description: event.description || '',
-        author: event.author
+        author: event.author,
+        participantsCount: event.participantsCount ?? 0
       }))
     } catch (error) {
       console.error('Failed to fetch events:', error)
@@ -40,7 +41,8 @@ class EventsService {
         startsAt: apiEvent.startsAt,
         coverVariant: apiEvent.coverVariant as EventCoverVariant,
         description: apiEvent.description || '',
-        author: currentUserEmail
+        author: currentUserEmail,
+        participantsCount: apiEvent.participantsCount ?? 0
       }
     } catch (error) {
       console.error('Failed to create event:', error)

@@ -37,7 +37,15 @@ function EventCard({ event }: Props) {
       />
 
       <div className="eventCard__body">
-        <div className="eventCard__title">{event.title}</div>
+        <div className="eventCard__titleRow">
+          <div className="eventCard__title">{event.title}</div>
+          <div className="eventCard__participants" aria-label="Количество участников">
+            <span className="eventCard__participantsIcon" aria-hidden="true">👥</span>
+            <span className="eventCard__participantsCount">
+              {event.participantsCount ?? 0}
+            </span>
+          </div>
+        </div>
         <div className="eventCard__meta">
           <span className="eventCard__date">{formatStartsAt(event.startsAt)}</span>
           <span className="dot" aria-hidden="true" />

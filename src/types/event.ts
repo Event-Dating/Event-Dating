@@ -12,4 +12,5 @@ export type EventItem = {
   customCover?: string
   description: string
   author: string
+  participantsCount?: number
 }

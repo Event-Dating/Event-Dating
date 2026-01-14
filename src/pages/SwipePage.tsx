@@ -4,21 +4,21 @@ import {
 	useMotionValue,
 	useTransform,
 } from 'framer-motion'
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
-import SwipeCard from '../components/Swipe/SwipeCard'
+import SwipeCard, { type SwipeProfile } from '../components/Swipe/SwipeCard'
 import SwipeFilters from '../components/Swipe/SwipeFilters'
-import { MOCK_PROFILES } from '../components/Swipe/mockData'
+import { ProfilesAPI, SwipesAPI } from '../services/api'
 import { useEvents } from '../context/EventsContext'
-import { mockEvents } from '../data/mockEvents'
+import { useAuth } from '../context/AuthContext'
 import './SwipePage.css'
 
 function SwipePage() {
 	const { id } = useParams<{ id: string }>()
-	const { events } = useEvents()
-	// Search for the event both in context and mock data to ensure we find it
-	const event =
-		events.find(e => e.id === id) || mockEvents.find(e => e.id === id)
+	const { events, loading: eventsLoading } = useEvents()
+	const { user } = useAuth()
+	// Ищем мероприятие в реальном списке
+	const event = events.find(e => e.id === id)
 
 	const [currentIndex, setCurrentIndex] = useState(0)
 	const [showFilters, setShowFilters] = useState(false) // Mobile filter toggle
@@ -27,6 +27,9 @@ function SwipePage() {
 		ageRange: [18, 50] as [number, number], // Fixed max age default to 50
 		interests: [] as string[],
 	})
+	const [profiles, setProfiles] = useState<SwipeProfile[]>([])
+	const [profilesError, setProfilesError] = useState<string | null>(null)
+	const [isLoadingProfiles, setIsLoadingProfiles] = useState(false)
 
 	// Animation state
 	const x = useMotionValue(0)
@@ -44,54 +47,76 @@ function SwipePage() {
 		x.set(0)
 	}, [currentIndex, x])
 
-	// Filter profiles
-	const filteredProfiles = useMemo(() => {
-		if (!id) return []
+	const currentProfile = profiles[currentIndex]
 
-		return MOCK_PROFILES.filter(profile => {
-			// Must have joined this specific event
-			// For demo/testing purposes, if we are on a real server with random IDs,
-			// we might want to show everyone.
-			// But to be consistent, let's say everyone joined *everything* in mockData.ts
-			// or just ignore this check for the "User Feedback" request to make it work.
-			// Let's rely on the updated mock data which has '1', '2', '3'.
-			// If the user has a *different* ID, they won't see anything.
-			// FIXED: Allow all profiles if joinedEvents includes 'all' OR matches ID.
-			if (
-				profile.joinedEvents &&
-				!profile.joinedEvents.includes('all') &&
-				!profile.joinedEvents.includes(id)
-			)
-				return false
+	// Загружаем реальные профили с сервера
+	useEffect(() => {
+		if (!user || !id) return
 
-			// Gender filter
-			if (filters.gender !== 'Любой' && profile.gender !== filters.gender)
-				return false
+		const loadProfiles = async () => {
+			setIsLoadingProfiles(true)
+			setProfilesError(null)
+			try {
+				const loaded = await ProfilesAPI.getProfiles({
+					currentUserId: user.id,
+					eventId: id,
+					gender: filters.gender,
+					minAge: filters.ageRange[0],
+					maxAge: filters.ageRange[1],
+					interests: filters.interests,
+				})
 
-			// Age filter
-			if (
-				profile.age < filters.ageRange[0] ||
-				profile.age > filters.ageRange[1]
-			)
-				return false
+				const mapped = loaded.map(profile => ({
+					id: profile.id,
+					name: profile.name,
+					age: profile.age,
+					gender: profile.gender,
+					avatarUrl: profile.avatar_url,
+					bio: profile.bio,
+					interests: Array.isArray(profile.interests)
+						? profile.interests
+						: [],
+				}))
 
-			// Interests filter (match at least one)
-			if (filters.interests.length > 0) {
-				const hasInterest = profile.tags.some(tag =>
-					filters.interests.includes(tag)
+				setProfiles(mapped)
+				setCurrentIndex(0)
+			} catch (error) {
+				console.error('Ошибка загрузки профилей:', error)
+				setProfilesError(
+					error instanceof Error
+						? error.message
+						: 'Не удалось загрузить профили'
 				)
-				if (!hasInterest) return false
+			} finally {
+				setIsLoadingProfiles(false)
 			}
+		}
 
-			return true
-		})
-	}, [filters, id])
+		loadProfiles()
+	}, [
+		user?.id,
+		id,
+		filters.gender,
+		filters.ageRange[0],
+		filters.ageRange[1],
+		filters.interests.join(','),
+	])
 
-	const currentProfile = filteredProfiles[currentIndex]
+	const handleSwipe = async (direction: 'left' | 'right') => {
+		if (!currentProfile || !user) return
 
-	const handleSwipe = (direction: 'left' | 'right') => {
-		console.log(`Swiped ${direction} on ${currentProfile.name}`)
-		// Need a slight delay to allow animation to complete if triggered by button
+		try {
+			await SwipesAPI.createSwipe({
+				swiperId: user.id,
+				targetId: currentProfile.id,
+				direction,
+				eventId: id,
+			})
+		} catch (error) {
+			console.error('Ошибка отправки свайпа:', error)
+		}
+
+		// Небольшая пауза для плавности
 		setTimeout(() => {
 			setCurrentIndex(prev => prev + 1)
 		}, 200)
@@ -100,10 +125,27 @@ function SwipePage() {
 	// Helper for buttons to trigger swipe (simulate manual swipe logic could be complex,
 	// here we just advance the index, but ideally we'd trigger the card animation)
 	const manualSwipe = (direction: 'left' | 'right') => {
-		handleSwipe(direction)
+		void handleSwipe(direction)
 	}
 
-	if (!event) return <div>Мероприятие не найдено</div>
+	if (!event) {
+		if (eventsLoading) {
+			return <div className='container'>Загрузка мероприятия...</div>
+		}
+		return <div className='container'>Мероприятие не найдено</div>
+	}
+	if (!user) {
+		return (
+			<div className='container'>
+				<div className='empty empty--center'>
+					<div className='empty__title'>Нужно войти</div>
+					<div className='empty__text'>
+						Авторизуйтесь, чтобы свайпать участников мероприятия.
+					</div>
+				</div>
+			</div>
+		)
+	}
 
 	return (
 		<div className='swipePage'>
@@ -178,11 +220,26 @@ function SwipePage() {
 				{/* Removed in-content filter button */}
 				<div className='swipePage__cardContainer'>
 					<AnimatePresence>
-						{currentProfile ? (
+						{isLoadingProfiles ? (
+							<div className='swipePage__empty'>
+								<h3>Загружаем профили...</h3>
+							</div>
+						) : profilesError ? (
+							<div className='swipePage__empty'>
+								<h3>Не удалось загрузить профили</h3>
+								<p>{profilesError}</p>
+								<button
+									className='button button--ghost'
+									onClick={() => setProfilesError(null)}
+								>
+									Повторить
+								</button>
+							</div>
+						) : currentProfile ? (
 							<SwipeCard
 								key={currentProfile.id}
 								profile={currentProfile}
-								onSwipe={handleSwipe}
+								onSwipe={direction => void handleSwipe(direction)}
 								dragX={x} // Pass motion value
 							/>
 						) : (
@@ -207,7 +264,7 @@ function SwipePage() {
 					</AnimatePresence>
 				</div>
 
-				{currentProfile && (
+				{currentProfile && !isLoadingProfiles && (
 					<div className='swipePage__controls'>
 						<button
 							className='swipePage__controlBtn swipePage__controlBtn--pass'

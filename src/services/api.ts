@@ -45,6 +45,7 @@ export interface Event {
 	description?: string
 	author: string
 	authorName?: string
+	participantsCount?: number
 }
 
 export interface CreateEventRequest {
@@ -176,6 +177,36 @@ export class EventsAPI {
 		if (!response.ok) {
 			const error = await response.json()
 			throw new Error(error.error || 'Failed to create event')
+		}
+
+		return response.json()
+	}
+}
+
+// API класс для свайпов
+export class SwipesAPI {
+	static async createSwipe(data: {
+		swiperId: string
+		targetId: string
+		direction: 'left' | 'right'
+		eventId?: string
+	}) {
+		const response = await fetch(`${API_BASE_URL}/swipe`, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+			},
+			body: JSON.stringify({
+				swiperId: data.swiperId,
+				targetId: data.targetId,
+				direction: data.direction,
+				eventId: data.eventId,
+			}),
+		})
+
+		if (!response.ok) {
+			const error = await response.json().catch(() => ({}))
+			throw new Error(error.error || 'Не удалось отправить свайп')
 		}
 
 		return response.json()

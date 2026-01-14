@@ -45,14 +45,6 @@ function ProfilePage() {
 		<div className='container'>
 			<div className='pageHeader'>
 				<h1 className='h1'>Профиль</h1>
-				{!isSurveyComplete && (
-					<button
-						className='button button--primary'
-						onClick={() => setShowSurveyModal(true)}
-					>
-						Пройти анкету
-					</button>
-				)}
 			</div>
 
 			<div className='profileGrid'>
