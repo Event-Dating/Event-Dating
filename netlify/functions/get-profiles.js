@@ -84,7 +84,7 @@ export const handler = async event => {
 			paramIndex++
 		}
 
-		query += ' LIMIT 20'
+		query += ' LIMIT 3'
 
 		const result = await pool.query(query, params)
 		await pool.end()
